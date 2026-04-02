@@ -1,21 +1,44 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 const connectDB = require("./src/config/db");
 
 const app = express();
 
+// Connect to MongoDB
 connectDB();
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
+// Serve uploaded files statically (multer standard)
+app.use("/uploads", express.static(path.join(__dirname, "src/uploads")));
+
+// ── Routes ────────────────────────────────────────────────────────────────────
+app.use("/api/auth", require("./src/routes/authRoutes"));
+
+// TODO: Add module routes below as each team member completes their slice
+// app.use("/api/homestays",  require("./src/routes/homestayRoutes"));
+// app.use("/api/attractions", require("./src/routes/attractionRoutes"));
+// app.use("/api/guides",     require("./src/routes/guideRoutes"));
+// app.use("/api/activities", require("./src/routes/activityRoutes"));
+// app.use("/api/events",     require("./src/routes/eventRoutes"));
+// app.use("/api/reviews",    require("./src/routes/reviewRoutes"));
+
+// Health check
 app.get("/", (req, res) => {
-  res.send("API running...");
+  res.json({ status: "ok", message: "HD Resorts API running" });
+});
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ message: "Route not found" });
 });
 
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+  console.log(`✅ Server running on port ${PORT}`);
+});
