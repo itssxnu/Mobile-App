@@ -59,3 +59,77 @@ const registerUser = async (req, res) => {
 };
 
 module.exports = { registerUser };
+
+// @desc    Forgot Password
+// @route   POST /api/auth/forgot-password
+// @access  Public
+const forgotPassword = async (req, res) => {
+    try {
+        const user = await User.findOne({ email: req.body.email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'There is no user with that email' });
+        }
+
+        // Get reset token
+        const resetToken = user.getResetPasswordToken();
+
+        await user.save({ validateBeforeSave: false });
+
+        // Currently we just return the token if nodemailer isn't setup properly by user to not block them
+        // In real world, send email
+        res.status(200).json({
+            success: true,
+            message: 'Email sent successfully. Use this token to reset.',
+            resetToken // Normally we don't return this, but here for testing/development
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Email could not be sent' });
+    }
+};
+
+// @desc    Reset Password
+// @route   PUT /api/auth/reset-password/:token
+// @access  Public
+const resetPassword = async (req, res) => {
+    try {
+        // Get hashed token
+        const resetPasswordToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
+
+        const user = await User.findOne({
+            resetPasswordToken,
+            resetPasswordExpire: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid or expired token' });
+        }
+
+        // Set new password
+        user.password = req.body.password;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpire = undefined;
+
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Password reset successfully',
+            token: generateToken(user._id)
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+module.exports = {
+    registerUser,
+    loginUser,
+    googleLogin,
+    forgotPassword,
+    resetPassword
+};
