@@ -67,6 +67,7 @@ const registerUser = async (req, res) => {
   }
 };
 
+<<<<<<< HEAD
 // @desc    Authenticate user & get token
 // @route   POST /api/auth/login
 // @access  Public
@@ -101,3 +102,50 @@ const loginUser = async (req, res) => {
 };
 
 module.exports = { registerUser, loginUser };
+=======
+// @desc    Authenticate with Google
+// @route   POST /api/auth/google
+// @access  Public
+const googleLogin = async (req, res) => {
+    try {
+        const { idToken } = req.body;
+
+        // Verify token
+        const ticket = await client.verifyIdToken({
+            idToken,
+            audience: process.env.GOOGLE_CLIENT_ID // Need this in .env later
+        });
+
+        const { email, name, picture } = ticket.getPayload();
+
+        // Find existing user
+        let user = await User.findOne({ email });
+
+        if (!user) {
+            // Generate a random password since they use Google
+            const randomPassword = crypto.randomBytes(16).toString('hex');
+
+            user = await User.create({
+                name,
+                email,
+                password: randomPassword,
+                profilePhoto: picture
+            });
+        }
+
+        res.json({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            profilePhoto: user.profilePhoto,
+            token: generateToken(user._id),
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(401).json({ message: 'Google authentication failed' });
+    }
+};
+
+module.exports = { registerUser };
+>>>>>>> 9bcf77f5edade3ed4ebc57a8a96a4f1e0e2b6634
