@@ -1,11 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const { registerUser } = require("../controllers/authController");
+const { registerUser, loginUser } = require("../controllers/authController");
+const upload = require("../middleware/uploadMiddleware");
 
 // POST /api/auth/register
-router.post("/register", registerUser);
+router.post("/register", upload.single("profilePhoto"), registerUser);
 
-// NOTE: POST /api/auth/login  → to be implemented by the Login team member
-// NOTE: GET  /api/auth/me     → to be implemented (protected route)
+// POST /api/auth/login (MEMBER 1)
+router.post("/login", loginUser);
 
 module.exports = router;

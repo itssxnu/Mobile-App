@@ -1,8 +1,16 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const bcrypt = require("bcryptjs");
+
+// Make sure JWT_SECRET is available
+console.log("JWT_SECRET loaded:", process.env.JWT_SECRET ? "Yes" : "No");
 
 const generateToken = (userId) => {
-  return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error("JWT_SECRET is not defined in .env file");
+  }
+  return jwt.sign({ id: userId }, secret, {
     expiresIn: "30d",
   });
 };
@@ -14,7 +22,11 @@ const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // --- Validation ---
+    let profilePhoto = "";
+    if (req.file) {
+      profilePhoto = `/uploads/profiles/${req.file.filename}`;
+    }
+
     if (!name || !email || !password) {
       return res.status(400).json({ message: "Please fill in all fields." });
     }
@@ -25,7 +37,6 @@ const registerUser = async (req, res) => {
         .json({ message: "Password must be at least 6 characters." });
     }
 
-    // --- Check for existing user ---
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res
@@ -33,29 +44,60 @@ const registerUser = async (req, res) => {
         .json({ message: "An account with this email already exists." });
     }
 
-    // --- Create user (password hashed via pre-save hook) ---
-    const user = await User.create({ name, email, password });
+    const user = await User.create({ name, email, password, profilePhoto });
 
-    // --- Respond with token ---
+    const token = generateToken(user._id);
+
     res.status(201).json({
+      success: true,
       message: "Registration successful!",
-      token: generateToken(user._id),
+      token: token,
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
+        profilePhoto: user.profilePhoto,
       },
     });
   } catch (err) {
-    // Mongoose validation errors
-    if (err.name === "ValidationError") {
-      const messages = Object.values(err.errors).map((e) => e.message);
-      return res.status(400).json({ message: messages.join(". ") });
-    }
     console.error("Register error:", err.message);
+    console.error("Full error:", err);
     res.status(500).json({ message: "Server error. Please try again." });
   }
 };
 
-module.exports = { registerUser };
+// @desc    Authenticate user & get token
+// @route   POST /api/auth/login
+// @access  Public
+const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (user && (await bcrypt.compare(password, user.password))) {
+      const token = generateToken(user._id);
+      
+      res.json({
+        success: true,
+        message: "Login successful",
+        token: token,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          profilePhoto: user.profilePhoto,
+        },
+      });
+    } else {
+      res.status(401).json({ message: "Invalid email or password" });
+    }
+  } catch (err) {
+    console.error("Login error:", err);
+    res.status(500).json({ message: "Server error. Please try again." });
+  }
+};
+
+module.exports = { registerUser, loginUser };
