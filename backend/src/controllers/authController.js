@@ -14,6 +14,11 @@ const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
+    let profilePhoto = null;
+    if (req.file) {
+      profilePhoto = `/uploads/profiles/${req.file.filename}`;
+    }
+
     // --- Validation ---
     if (!name || !email || !password) {
       return res.status(400).json({ message: "Please fill in all fields." });
@@ -34,7 +39,7 @@ const registerUser = async (req, res) => {
     }
 
     // --- Create user (password hashed via pre-save hook) ---
-    const user = await User.create({ name, email, password });
+    const user = await User.create({ name, email, password, profilePhoto });
 
     // --- Respond with token ---
     res.status(201).json({
@@ -45,6 +50,7 @@ const registerUser = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        profilePhoto: user.profilePhoto,
       },
     });
   } catch (err) {
