@@ -25,8 +25,13 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["user", "host", "guide", "admin"],
-      default: "user",
+      enum: ["USER", "PROVIDER", "ADMIN"],
+      default: "USER",
+    },
+    providerType: {
+      type: String,
+      enum: ["HOST", "GUIDE", "ACTIVITY", "EVENT"],
+      required: function() { return this.role === 'PROVIDER'; }
     },
     profilePhoto: {
       type: String,

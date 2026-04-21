@@ -97,13 +97,29 @@ export default function DashboardScreen() {
                   <Text style={styles.menuText}>My Profile</Text>
                 </TouchableOpacity>
 
-                {/* Upgrade Item */}
-                <TouchableOpacity style={styles.menuItem} onPress={() => setMenuVisible(false)}>
-                  <View style={styles.menuIconBox}>
-                    <Ionicons name="star-outline" size={22} color="#344e41" />
-                  </View>
-                  <Text style={styles.menuText}>Upgrade to Pro</Text>
-                </TouchableOpacity>
+                {/* Conditional Action based on Role */}
+                {user?.role?.toUpperCase() === 'USER' ? (
+                  <TouchableOpacity style={styles.menuItem} onPress={() => { setMenuVisible(false); router.push('/(tabs)/upgrade'); }}>
+                    <View style={styles.menuIconBox}>
+                      <Ionicons name="briefcase-outline" size={22} color="#344e41" />
+                    </View>
+                    <Text style={styles.menuText}>Become a Provider</Text>
+                  </TouchableOpacity>
+                ) : user?.role?.toUpperCase() === 'PROVIDER' ? (
+                  <TouchableOpacity style={styles.menuItem} onPress={() => { setMenuVisible(false); Alert.alert('Coming Soon', 'Provider Dashboard is under construction.'); }}>
+                    <View style={[styles.menuIconBox, { backgroundColor: '#eef4ed' }]}>
+                      <Ionicons name="bar-chart-outline" size={22} color="#3a5a40" />
+                    </View>
+                    <Text style={styles.menuText}>Provider Dashboard</Text>
+                  </TouchableOpacity>
+                ) : user?.role?.toUpperCase() === 'ADMIN' ? (
+                  <TouchableOpacity style={styles.menuItem} onPress={() => { setMenuVisible(false); router.push('/(tabs)/admin'); }}>
+                    <View style={[styles.menuIconBox, { backgroundColor: '#f0f4f8' }]}>
+                      <Ionicons name="shield-checkmark-outline" size={22} color="#1e40af" />
+                    </View>
+                    <Text style={[styles.menuText, { color: '#1e40af' }]}>Admin Dashboard</Text>
+                  </TouchableOpacity>
+                ) : null}
 
                 <View style={styles.divider} />
 

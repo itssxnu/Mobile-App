@@ -37,3 +37,50 @@ export const deleteAccount = async () => {
     throw error;
   }
 };
+
+export const upgradeAccount = async (providerType) => {
+  try {
+    const config = await getAuthHeaders();
+    const response = await axios.put(`${API_URL}/upgrade`, { providerType }, config);
+    if (response.data.success) {
+      await storeUserData(response.data.user);
+      return response.data.user;
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
+// ==========================================
+// ADMIN SERVICES
+// ==========================================
+
+export const getAllUsers = async () => {
+  try {
+    const config = await getAuthHeaders();
+    const response = await axios.get(`${API_URL}`, config);
+    return response.data.users;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateUserRole = async (id, role, providerType = undefined) => {
+  try {
+    const config = await getAuthHeaders();
+    const response = await axios.put(`${API_URL}/${id}/role`, { role, providerType }, config);
+    return response.data.user;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const deleteUserById = async (id) => {
+  try {
+    const config = await getAuthHeaders();
+    const response = await axios.delete(`${API_URL}/${id}`, config);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

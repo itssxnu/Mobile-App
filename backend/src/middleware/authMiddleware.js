@@ -21,4 +21,19 @@ const protect = async (req, res, next) => {
   }
 };
 
-module.exports = { protect };
+const authorizeRoles = (...roles) => {
+  return (req, res, next) => {
+    if (!req.user || !req.user.role) {
+      return res.status(403).json({ message: "Access forbidden: Role not found" });
+    }
+    
+    if (!roles.includes(req.user.role.toUpperCase())) {
+      return res.status(403).json({ 
+        message: `Access forbidden: Requires one of ${roles.join(", ")}` 
+      });
+    }
+    next();
+  };
+};
+
+module.exports = { protect, authorizeRoles };

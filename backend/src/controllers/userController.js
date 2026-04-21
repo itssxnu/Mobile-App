@@ -95,4 +95,142 @@ const deleteAccount = async (req, res) => {
   }
 };
 
-module.exports = { getMe, updateMe, deleteProfilePhoto, deleteAccount };
+// Upgrade account to Provider
+const upgradeAccount = async (req, res) => {
+  try {
+    const { providerType } = req.body;
+    
+    if (!providerType) {
+      return res.status(400).json({ message: "Provider type is required" });
+    }
+
+    const validTypes = ["HOST", "GUIDE", "ACTIVITY", "EVENT"];
+    if (!validTypes.includes(providerType.toUpperCase())) {
+      return res.status(400).json({ message: "Invalid provider type" });
+    }
+
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.role === "PROVIDER") {
+      return res.status(400).json({ message: "User is already a provider" });
+    }
+
+    user.role = "PROVIDER";
+    user.providerType = providerType.toUpperCase();
+    await user.save();
+
+    res.status(200).json({ 
+      success: true, 
+      message: "Successfully upgraded to Provider",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        providerType: user.providerType,
+        profilePhoto: user.profilePhoto,
+      }
+    });
+  } catch (error) {
+    console.error("Upgrade account error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// ==========================================
+// ADMIN CONTROLLERS
+// ==========================================
+
+// Get all users
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find({}).select("-password");
+    res.status(200).json({ success: true, users });
+  } catch (error) {
+    console.error("Get all users error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Update user role
+const updateUserRole = async (req, res) => {
+  try {
+    const { role, providerType } = req.body;
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const validRoles = ["USER", "PROVIDER", "ADMIN"];
+    if (!validRoles.includes(role?.toUpperCase())) {
+      return res.status(400).json({ message: "Invalid role" });
+    }
+
+    user.role = role.toUpperCase();
+    
+    if (user.role === "PROVIDER") {
+      const validTypes = ["HOST", "GUIDE", "ACTIVITY", "EVENT"];
+      if (!validTypes.includes(providerType?.toUpperCase())) {
+        return res.status(400).json({ message: "Invalid provider type" });
+      }
+      user.providerType = providerType.toUpperCase();
+    } else {
+      user.providerType = undefined;
+    }
+
+    await user.save();
+    
+    res.status(200).json({ success: true, user: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      providerType: user.providerType
+    }});
+  } catch (error) {
+    console.error("Update user role error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Delete user (by Admin)
+const deleteUserById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Delete profile photo from disk if it exists
+    if (user.profilePhoto) {
+      const photoPath = path.join(__dirname, "../uploads/profiles/", path.basename(user.profilePhoto));
+      if (fs.existsSync(photoPath)) {
+        fs.unlinkSync(photoPath);
+      }
+    }
+
+    await User.findByIdAndDelete(req.params.id);
+    
+    res.status(200).json({ success: true, message: "User physically deleted" });
+  } catch (error) {
+    console.error("Delete user error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+module.exports = { 
+  getMe, 
+  updateMe, 
+  deleteProfilePhoto, 
+  deleteAccount, 
+  upgradeAccount,
+  getAllUsers,
+  updateUserRole,
+  deleteUserById
+};
