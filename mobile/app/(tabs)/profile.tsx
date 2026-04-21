@@ -1,174 +1,116 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  Alert,
-  ActivityIndicator,
-  ScrollView,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
+import React, { useState, useEffect } from 'react';
+import { 
+  View, 
+  Text, 
+  TextInput, 
+  TouchableOpacity, 
+  StyleSheet, 
+  Image, 
+  Alert, 
+  ActivityIndicator, 
+  KeyboardAvoidingView, 
+  Platform, 
+  ScrollView 
 } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
-import { router } from 'expo-router';
-import { logout } from '../../src/services/authService';
-
-// Interface for User type
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  profilePhoto: string | null;
-  createdAt: string;
-}
+import { getUserData, logout } from '../../src/services/authService';
+import { updateProfile, deleteAccount } from '../../src/services/userService';
 
 export default function ProfileScreen() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [updating, setUpdating] = useState(false);
-  const [uploadingPhoto, setUploadingPhoto] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
+  const router = useRouter();
+  const [user, setUser] = useState<any>(null);
   const [name, setName] = useState('');
+  const [email, setEmail] = useState(''); // Read-only or editable? Let's make it read-only for simplicity, or editable but backend ignores it (actually backend updateMe only updates name/photo right now). We'll make it read-only.
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const API_URL = "http://192.168.1.6:5000/api/users";
-
-  // Get token from storage
-  const getToken = async () => {
-    return await AsyncStorage.getItem('userToken');
-  };
-
-  // Get auth header
-  const getAuthHeader = async () => {
-    const token = await getToken();
-    return {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+  useEffect(() => {
+    const loadUser = async () => {
+      const data = await getUserData();
+      if (data) {
+        setUser(data);
+        setName(data.name);
+        setEmail(data.email);
+        if (data.profilePhoto) {
+          const API_BASE = process.env.EXPO_PUBLIC_API_URL?.replace('/api', '') || 'http://172.20.10.6:5000';
+          setProfilePhoto(`${API_BASE}${data.profilePhoto}`);
+        }
+      }
     };
+    loadUser();
+  }, []);
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+    });
+
+    if (!result.canceled) {
+      setProfilePhoto(result.assets[0].uri);
+    }
   };
 
-  // Load profile
-  const loadProfile = async () => {
+  const handleSave = async () => {
+    if (!name.trim()) {
+      Alert.alert('Required', 'Name cannot be empty.');
+      return;
+    }
+
+    setLoading(true);
     try {
-      setLoading(true);
-      const config = await getAuthHeader();
-      const response = await axios.get(`${API_URL}/me`, config);
-      setUser(response.data.user);
-      setName(response.data.user.name);
-    } catch (error) {
-      console.error('Load profile error:', error);
-      Alert.alert('Error', 'Failed to load profile');
+      const formData = new FormData();
+      formData.append('name', name.trim());
+
+      // If profilePhoto is a local URI (not the one from the server), we upload it
+      if (profilePhoto && !profilePhoto.startsWith('http')) {
+        const filename = profilePhoto.split('/').pop() || 'photo.jpg';
+        const match = /\.(\w+)$/.exec(filename);
+        const type = match ? `image/${match[1]}` : `image/jpeg`;
+
+        formData.append('profilePhoto', {
+          uri: Platform.OS === 'android' ? profilePhoto : profilePhoto.replace('file://', ''),
+          name: filename,
+          type: type,
+        } as any);
+      }
+
+      await updateProfile(formData);
+      Alert.alert('Success', 'Profile updated successfully!', [
+        { text: 'OK', onPress: () => router.back() }
+      ]);
+    } catch (err: any) {
+      Alert.alert('Update Failed', err.response?.data?.message || 'Something went wrong.');
     } finally {
       setLoading(false);
     }
   };
 
-  // Load profile when screen comes into focus
-  useFocusEffect(
-    useCallback(() => {
-      loadProfile();
-    }, [])
-  );
-
-  // Update profile
-  const handleUpdateProfile = async () => {
-    if (!name.trim()) {
-      Alert.alert('Error', 'Name is required');
-      return;
-    }
-
-    setUpdating(true);
-    try {
-      const config = await getAuthHeader();
-      const response = await axios.put(`${API_URL}/me`, { name: name.trim() }, config);
-      setUser(response.data.user);
-      setIsEditing(false);
-      Alert.alert('Success', 'Profile updated successfully');
-    } catch (error) {
-      console.error('Update error:', error);
-      Alert.alert('Error', 'Failed to update profile');
-    } finally {
-      setUpdating(false);
-    }
+  const handleSignOut = async () => {
+    await logout();
+    router.replace('/(auth)/login');
   };
 
-  // Pick and upload image
-  const pickImage = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission Needed', 'Please grant gallery access to upload photos');
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
-
-    if (!result.canceled && result.assets[0]) {
-      setUploadingPhoto(true);
-      try {
-        const config = await getAuthHeader();
-        const formData = new FormData();
-        const uri = result.assets[0].uri;
-        const filename = uri.split('/').pop() || 'photo.jpg';
-        const match = /\.(\w+)$/.exec(filename);
-        const type = match ? `image/${match[1]}` : 'image/jpeg';
-
-        formData.append('profilePhoto', {
-          uri: uri,
-          name: filename,
-          type: type,
-        } as any);
-
-        const response = await axios.put(`${API_URL}/me`, formData, {
-          headers: config.headers,
-        });
-
-        setUser(response.data.user);
-        Alert.alert('Success', 'Profile photo updated');
-      } catch (error) {
-        console.error('Upload error:', error);
-        Alert.alert('Error', 'Failed to upload photo');
-      } finally {
-        setUploadingPhoto(false);
-      }
-    }
-  };
-
-  // Delete photo
-  const handleDeletePhoto = async () => {
+  const handleDeleteAccount = () => {
     Alert.alert(
-      'Delete Photo',
-      'Are you sure you want to delete your profile photo?',
+      'Delete Account',
+      'Are you sure you want to permanently delete your account? This action cannot be undone.',
       [
         { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
+        { 
+          text: 'Delete', 
+          style: 'destructive', 
           onPress: async () => {
-            setUploadingPhoto(true);
             try {
-              const config = await getAuthHeader();
-              await axios.delete(`${API_URL}/me/photo`, config);
-              if (user) {
-                setUser({ ...user, profilePhoto: null });
-              }
-              Alert.alert('Success', 'Profile photo deleted');
-            } catch (error) {
-              console.error('Delete error:', error);
-              Alert.alert('Error', 'Failed to delete photo');
-            } finally {
-              setUploadingPhoto(false);
+              await deleteAccount();
+              await logout();
+              router.replace('/(auth)/login');
+            } catch (err: any) {
+              Alert.alert('Error', err.response?.data?.message || 'Could not delete account.');
             }
           }
         }
@@ -176,346 +118,121 @@ export default function ProfileScreen() {
     );
   };
 
-  const handleLogout = async () => {
-    Alert.alert(
-      'Log Out',
-      'Are you sure you want to log out?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Log Out',
-          style: 'destructive',
-          onPress: async () => {
-            await logout();
-            router.replace('/(auth)/login');
-          }
-        }
-      ]
-    );
-  };
-
-  // Get image URL
-  const getImageUrl = () => {
-    if (user?.profilePhoto) {
-      return `http://192.168.1.6:5000${user.profilePhoto}`;
-    }
-    return null;
-  };
-
-  if (loading) {
-    return (
-      <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#2E7D32" />
-      </View>
-    );
-  }
-
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {/* Profile Photo Section */}
-        <View style={styles.photoSection}>
-          <TouchableOpacity onPress={pickImage} disabled={uploadingPhoto}>
-            <View style={styles.photoContainer}>
-              {getImageUrl() ? (
-                <Image source={{ uri: getImageUrl()! }} style={styles.profilePhoto} />
-              ) : (
-                <View style={styles.photoPlaceholder}>
-                  <Text style={styles.photoPlaceholderText}>
-                    {user?.name?.charAt(0).toUpperCase() || 'U'}
-                  </Text>
-                </View>
-              )}
-              {uploadingPhoto && (
-                <View style={styles.photoOverlay}>
-                  <ActivityIndicator color="#fff" />
-                </View>
-              )}
-              <View style={styles.editPhotoBadge}>
-                <Text style={styles.editPhotoText}>📷</Text>
+    <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+          <Ionicons name="arrow-back" size={24} color="#344e41" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>My Profile</Text>
+        <View style={{ width: 40 }} />
+      </View>
+
+      <ScrollView contentContainerStyle={styles.scroll}>
+        
+        <View style={styles.avatarSection}>
+          <TouchableOpacity onPress={pickImage} style={styles.avatarWrapper} activeOpacity={0.8}>
+            {profilePhoto ? (
+              <Image source={{ uri: profilePhoto }} style={styles.avatarImage} />
+            ) : (
+              <View style={styles.avatarFallback}>
+                <Ionicons name="person" size={50} color="#dad7cd" />
               </View>
+            )}
+            <View style={styles.editBadge}>
+              <Ionicons name="camera" size={16} color="#ffffff" />
             </View>
           </TouchableOpacity>
-
-          {user?.profilePhoto && (
-            <TouchableOpacity onPress={handleDeletePhoto} style={styles.deletePhotoButton}>
-              <Text style={styles.deletePhotoText}>Delete Photo</Text>
-            </TouchableOpacity>
-          )}
+          <Text style={styles.avatarHelpText}>Tap to change photo</Text>
         </View>
 
-        {/* Profile Info Section */}
-        <View style={styles.infoSection}>
-          {!isEditing ? (
-            // View Mode
-            <>
-              <View style={styles.infoRow}>
-                <Text style={styles.label}>Name</Text>
-                <Text style={styles.value}>{user?.name}</Text>
-              </View>
-              <View style={styles.infoRow}>
-                <Text style={styles.label}>Email</Text>
-                <Text style={styles.value}>{user?.email}</Text>
-              </View>
-              <View style={styles.infoRow}>
-                <Text style={styles.label}>Member Since</Text>
-                <Text style={styles.value}>
-                  {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
-                </Text>
-              </View>
+        <View style={styles.card}>
+          <View style={styles.fieldWrapper}>
+            <Text style={styles.label}>Full Name</Text>
+            <TextInput
+              style={styles.input}
+              value={name}
+              onChangeText={setName}
+              placeholder="e.g. John Doe"
+              placeholderTextColor="#a3b18a"
+            />
+          </View>
 
-              <TouchableOpacity
-                style={styles.editButton}
-                onPress={() => setIsEditing(true)}
-              >
-                <Text style={styles.editButtonText}>Edit Profile</Text>
-              </TouchableOpacity>
+          <View style={styles.fieldWrapper}>
+            <Text style={styles.label}>Email Address (Read-only)</Text>
+            <TextInput
+              style={[styles.input, styles.inputDisabled]}
+              value={email}
+              editable={false}
+            />
+          </View>
 
-              <TouchableOpacity
-                style={styles.logoutButton}
-                onPress={handleLogout}
-              >
-                <Text style={styles.logoutButtonText}>Log Out</Text>
-              </TouchableOpacity>
-            </>
-          ) : (
-            // Edit Mode
-            <>
-              <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>Name</Text>
-                <TextInput
-                  style={styles.input}
-                  value={name}
-                  onChangeText={setName}
-                  placeholder="Enter your name"
-                />
-              </View>
-
-              <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>Email</Text>
-                <TextInput
-                  style={[styles.input, styles.disabledInput]}
-                  value={user?.email}
-                  editable={false}
-                />
-                <Text style={styles.hintText}>Email cannot be changed</Text>
-              </View>
-
-              <View style={styles.buttonRow}>
-                <TouchableOpacity
-                  style={[styles.button, styles.cancelButton]}
-                  onPress={() => {
-                    setIsEditing(false);
-                    setName(user?.name || '');
-                  }}
-                  disabled={updating}
-                >
-                  <Text style={styles.cancelButtonText}>Cancel</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[styles.button, styles.saveButton]}
-                  onPress={handleUpdateProfile}
-                  disabled={updating}
-                >
-                  {updating ? (
-                    <ActivityIndicator color="#fff" size="small" />
-                  ) : (
-                    <Text style={styles.saveButtonText}>Save</Text>
-                  )}
-                </TouchableOpacity>
-              </View>
-            </>
-          )}
+          <TouchableOpacity style={styles.primaryButton} onPress={handleSave} disabled={loading}>
+            {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryButtonText}>Save Changes</Text>}
+          </TouchableOpacity>
         </View>
+
+        <View style={styles.dangerZone}>
+          <Text style={styles.dangerTitle}>Account Settings</Text>
+          
+          <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
+            <Ionicons name="log-out-outline" size={20} color="#344e41" />
+            <Text style={styles.signOutText}>Sign Out</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteAccount}>
+            <Ionicons name="trash-outline" size={20} color="#dc2626" />
+            <Text style={styles.deleteText}>Delete Account Permanently</Text>
+          </TouchableOpacity>
+        </View>
+
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
+  screen: { flex: 1, backgroundColor: '#dad7cd' },
+  header: { 
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', 
+    paddingHorizontal: 20, paddingTop: Platform.OS === 'ios' ? 60 : 30, paddingBottom: 15,
+    backgroundColor: '#dad7cd', borderBottomWidth: 1, borderBottomColor: '#a3b18a'
   },
-  scrollContainer: {
-    flexGrow: 1,
-    padding: 20,
+  backButton: { width: 40, height: 40, justifyContent: 'center' },
+  headerTitle: { fontSize: 18, fontWeight: '800', color: '#344e41' },
+  scroll: { padding: 24, paddingBottom: 60 },
+  
+  // Avatar
+  avatarSection: { alignItems: 'center', marginBottom: 32, marginTop: 10 },
+  avatarWrapper: {
+    width: 120, height: 120, borderRadius: 60, backgroundColor: '#ffffff',
+    borderWidth: 3, borderColor: '#3a5a40', justifyContent: 'center', alignItems: 'center',
+    shadowColor: '#344e41', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.15, shadowRadius: 10, elevation: 8
   },
-  centerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  avatarFallback: { width: '100%', height: '100%', borderRadius: 60, backgroundColor: '#3a5a40', justifyContent: 'center', alignItems: 'center' },
+  avatarImage: { width: '100%', height: '100%', borderRadius: 60, resizeMode: 'cover' },
+  editBadge: {
+    position: 'absolute', bottom: 0, right: 0, backgroundColor: '#588157',
+    width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center',
+    borderWidth: 3, borderColor: '#dad7cd'
   },
-  photoSection: {
-    alignItems: 'center',
-    marginBottom: 30,
-  },
-  photoContainer: {
-    position: 'relative',
-  },
-  profilePhoto: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    borderWidth: 3,
-    borderColor: '#2E7D32',
-  },
-  photoPlaceholder: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: '#2E7D32',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 3,
-    borderColor: '#fff',
-  },
-  photoPlaceholderText: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  photoOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    borderRadius: 60,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  editPhotoBadge: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    backgroundColor: '#2E7D32',
-    borderRadius: 20,
-    padding: 8,
-    borderWidth: 2,
-    borderColor: '#fff',
-  },
-  editPhotoText: {
-    fontSize: 16,
-  },
-  deletePhotoButton: {
-    marginTop: 8,
-  },
-  deletePhotoText: {
-    color: '#dc2626',
-    fontSize: 12,
-  },
-  infoSection: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  infoRow: {
-    marginBottom: 16,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  label: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#888',
-    marginBottom: 4,
-    textTransform: 'uppercase',
-  },
-  value: {
-    fontSize: 16,
-    color: '#333',
-  },
-  editButton: {
-    backgroundColor: '#2E7D32',
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  editButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  logoutButton: {
-    backgroundColor: '#fff',
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 12,
-    borderWidth: 1,
-    borderColor: '#dc2626',
-  },
-  logoutButtonText: {
-    color: '#dc2626',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  inputContainer: {
-    marginBottom: 16,
-  },
-  inputLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    backgroundColor: '#fff',
-  },
-  disabledInput: {
-    backgroundColor: '#f5f5f5',
-    color: '#999',
-  },
-  hintText: {
-    fontSize: 12,
-    color: '#888',
-    marginTop: 4,
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 16,
-  },
-  button: {
-    flex: 1,
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  cancelButton: {
-    backgroundColor: '#e5e7eb',
-    marginRight: 8,
-  },
-  saveButton: {
-    backgroundColor: '#2E7D32',
-    marginLeft: 8,
-  },
-  cancelButtonText: {
-    color: '#333',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  saveButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
+  avatarHelpText: { marginTop: 12, fontSize: 13, color: '#588157', fontWeight: '600' },
+
+  // Card & Form
+  card: { backgroundColor: '#ffffff', borderRadius: 24, padding: 24, borderWidth: 1, borderColor: '#a3b18a', marginBottom: 32 },
+  fieldWrapper: { marginBottom: 16 },
+  label: { fontSize: 12, fontWeight: '700', color: '#588157', marginBottom: 6, textTransform: 'uppercase' },
+  input: { backgroundColor: '#ffffff', borderWidth: 1, borderColor: '#a3b18a', borderRadius: 12, padding: 14, color: '#344e41', fontSize: 16, fontWeight: '500' },
+  inputDisabled: { backgroundColor: '#f1f5f9', color: '#6B7280', borderColor: '#e2e8f0' },
+  
+  primaryButton: { backgroundColor: '#3a5a40', borderRadius: 14, padding: 16, alignItems: 'center', marginTop: 10 },
+  primaryButtonText: { color: '#ffffff', fontSize: 16, fontWeight: '700' },
+
+  // Danger Zone
+  dangerZone: { gap: 12 },
+  dangerTitle: { fontSize: 14, fontWeight: '800', color: '#344e41', textTransform: 'uppercase', marginBottom: 4, paddingLeft: 4 },
+  signOutButton: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#ffffff', padding: 16, borderRadius: 14, borderWidth: 1, borderColor: '#a3b18a' },
+  signOutText: { fontSize: 16, fontWeight: '700', color: '#344e41' },
+  deleteButton: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#fef2f2', padding: 16, borderRadius: 14, borderWidth: 1, borderColor: '#fca5a5' },
+  deleteText: { fontSize: 16, fontWeight: '700', color: '#dc2626' },
 });

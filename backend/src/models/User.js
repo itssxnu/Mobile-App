@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
 
 const userSchema = new mongoose.Schema(
   {
@@ -20,6 +21,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Password is required"],
       minlength: [6, "Password must be at least 6 characters"],
+      select: false
     },
     role: {
       type: String,
@@ -30,6 +32,18 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    phone: {
+      type: String,
+      default: "",
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    verificationOtp: String,
+    verificationOtpExpire: Date,
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
   },
   { timestamps: true }
 );
@@ -40,9 +54,37 @@ userSchema.pre("save", async function () {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-// Method to compare passwords (used by login later)
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
+};
+
+userSchema.methods.getResetPasswordToken = function () {
+  const resetToken = crypto.randomBytes(20).toString("hex");
+
+  this.resetPasswordToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  this.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+
+  return resetToken;
+};
+
+userSchema.methods.generateVerificationOtp = function () {
+  // Generate a 6 digit random number
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+  // Hash it before saving to DB
+  this.verificationOtp = crypto
+    .createHash("sha256")
+    .update(otp)
+    .digest("hex");
+
+  // Set expiry to 10 minutes
+  this.verificationOtpExpire = Date.now() + 10 * 60 * 1000;
+
+  return otp; // Return plain text OTP to send via email
 };
 
 module.exports = mongoose.model("User", userSchema);

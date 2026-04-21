@@ -19,10 +19,11 @@ const getMe = async (req, res) => {
 // Update current user profile
 const updateMe = async (req, res) => {
   try {
-    const { name } = req.body;
+    const { name, phone } = req.body;
     const updates = {};
     
     if (name) updates.name = name;
+    if (phone) updates.phone = phone;
     
     // Handle profile photo upload
     if (req.file) {
@@ -69,4 +70,29 @@ const deleteProfilePhoto = async (req, res) => {
   }
 };
 
-module.exports = { getMe, updateMe, deleteProfilePhoto };
+// Delete user account permanently
+const deleteAccount = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Delete profile photo from disk if it exists
+    if (user.profilePhoto) {
+      const photoPath = path.join(__dirname, "../uploads/profiles/", path.basename(user.profilePhoto));
+      if (fs.existsSync(photoPath)) {
+        fs.unlinkSync(photoPath);
+      }
+    }
+
+    await User.findByIdAndDelete(req.user.id);
+
+    res.status(200).json({ success: true, message: "User account deleted successfully" });
+  } catch (error) {
+    console.error("Delete account error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+module.exports = { getMe, updateMe, deleteProfilePhoto, deleteAccount };

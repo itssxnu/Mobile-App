@@ -7,7 +7,7 @@ import { Stack, router } from 'expo-router';
 import { registerUser } from '../../src/services/authService';
 import * as ImagePicker from 'expo-image-picker';
 
-type FormErrors = Partial<Record<'name' | 'email' | 'password' | 'confirmPassword', string>>;
+type FormErrors = Partial<Record<'name' | 'email' | 'phone' | 'password' | 'confirmPassword', string>>;
 
 interface FieldProps {
   label: string; value: string; onChangeText: (text: string) => void;
@@ -35,6 +35,7 @@ const Field = ({ label, value, onChangeText, placeholder, secure = false, keyboa
 export default function RegisterScreen() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -60,6 +61,7 @@ export default function RegisterScreen() {
     const newErrors: FormErrors = {};
     if (!name.trim()) newErrors.name = 'Full name is required.';
     if (!email.trim() || !/^\S+@\S+\.\S+$/.test(email)) newErrors.email = 'Valid email is required.';
+    if (!phone.trim()) newErrors.phone = 'Phone number is required.';
     if (!password || password.length < 6) newErrors.password = 'Min. 6 characters required.';
     if (password !== confirmPassword) newErrors.confirmPassword = 'Passwords do not match.';
     setErrors(newErrors);
@@ -74,6 +76,7 @@ export default function RegisterScreen() {
     const formData = new FormData();
     formData.append('name', name.trim());
     formData.append('email', email.trim().toLowerCase());
+    formData.append('phone', phone.trim());
     formData.append('password', password);
 
     if (profilePhoto) {
@@ -91,13 +94,14 @@ export default function RegisterScreen() {
     try {
       const response = await registerUser(formData);
 
-      Alert.alert(
-        '✅ Registration Successful!',
-        `Welcome ${response.user.name}! Your account has been created.`,
-        [{ text: 'Login Now', onPress: () => router.replace('/(auth)/login') }]
-      );
+      if (response.unverified) {
+        Alert.alert(
+          'Verification Required',
+          'We have sent a 6-digit code to your email. Please verify your account.',
+          [{ text: 'OK', onPress: () => router.push({ pathname: '/(auth)/otp-verify', params: { email: email.trim().toLowerCase() } }) }]
+        );
+      }
     } catch (err: any) {
-      // Fixed: Added ": any" to fix TypeScript error
       Alert.alert('Registration Failed', err.response?.data?.message || 'Server error.');
     } finally {
       setLoading(false);
@@ -129,6 +133,7 @@ export default function RegisterScreen() {
 
           <Field label="Full Name" value={name} onChangeText={setName} placeholder="e.g. Sahan Perera" error={errors.name} onClearError={() => setErrors(prev => ({ ...prev, name: undefined }))} />
           <Field label="Email Address" value={email} onChangeText={setEmail} placeholder="you@example.com" keyboardType="email-address" error={errors.email} onClearError={() => setErrors(prev => ({ ...prev, email: undefined }))} />
+          <Field label="Phone Number" value={phone} onChangeText={setPhone} placeholder="07XXXXXXXX" keyboardType="phone-pad" error={errors.phone} onClearError={() => setErrors(prev => ({ ...prev, phone: undefined }))} />
           <Field label="Password" value={password} onChangeText={setPassword} placeholder="Min. 6 characters" secure error={errors.password} onClearError={() => setErrors(prev => ({ ...prev, password: undefined }))} />
           <Field label="Confirm Password" value={confirmPassword} onChangeText={setConfirmPassword} placeholder="Re-enter password" secure error={errors.confirmPassword} onClearError={() => setErrors(prev => ({ ...prev, confirmPassword: undefined }))} />
 

@@ -2,7 +2,9 @@ import axios from "axios";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Direct API URL
-const API_URL = "http://192.168.1.6:5000/api/auth";
+const API_URL = process.env.EXPO_PUBLIC_API_URL 
+  ? `${process.env.EXPO_PUBLIC_API_URL}/auth`
+  : "http://172.20.10.6:5000/api/auth";
 
 // Token management using AsyncStorage
 export const storeToken = async (token) => {
@@ -35,7 +37,11 @@ export const isAuthenticated = async () => {
 // Register user
 export const registerUser = async (formData) => {
   try {
-    const response = await axios.post(`${API_URL}/register`, formData);
+    const response = await axios.post(`${API_URL}/register`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     
     if (response.data.token) {
       await storeToken(response.data.token);
@@ -63,6 +69,32 @@ export const loginUser = async (email, password) => {
       await storeUserData(response.data.user);
     }
     
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Verify Email OTP
+export const verifyEmail = async (email, otp) => {
+  try {
+    const response = await axios.post(`${API_URL}/verify-email`, { email, otp });
+    
+    if (response.data.token) {
+      await storeToken(response.data.token);
+      await storeUserData(response.data.user);
+    }
+    
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Resend Verification OTP
+export const resendVerification = async (email) => {
+  try {
+    const response = await axios.post(`${API_URL}/resend-verification`, { email });
     return response.data;
   } catch (error) {
     throw error;
