@@ -64,3 +64,6 @@ Thumbs.db
 
 # Prevent nested git repos (safety)
 **/.git
+
+# Profile photos
+backend/src/uploads/profiles/

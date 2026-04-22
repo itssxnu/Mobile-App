@@ -1,7 +1,12 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const crypto = require('crypto');
-const sendEmail = require("../utils/sendEmail");
+const { 
+  sendVerificationEmail,
+  sendLoginVerificationEmail,
+  sendResendVerificationEmail,
+  sendPasswordResetEmail
+} = require("../utils/sendEmail");
 
 const generateToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
@@ -39,11 +44,7 @@ const registerUser = async (req, res) => {
     await user.save({ validateBeforeSave: false });
 
     try {
-      await sendEmail({
-        email: user.email,
-        subject: "HD Resorts - Email Verification",
-        message: `Welcome to HD Resorts!\n\nYour 6-digit verification code is: ${otp}\n\nThis code will expire in 10 minutes.`,
-      });
+      await sendVerificationEmail(user.email, otp);
 
       res.status(201).json({
         success: true,
@@ -81,11 +82,7 @@ const loginUser = async (req, res) => {
         await user.save({ validateBeforeSave: false });
 
         try {
-          await sendEmail({
-            email: user.email,
-            subject: "HD Resorts - Verify Your Login",
-            message: `You tried to log in but your email is not verified.\n\nYour new 6-digit verification code is: ${otp}\n\nThis code will expire in 10 minutes.`,
-          });
+          await sendLoginVerificationEmail(user.email, otp);
           return res.status(403).json({
             success: false,
             message: "Email not verified. A new code has been sent to your email.",
@@ -129,7 +126,8 @@ const verifyEmail = async (req, res) => {
       return res.status(400).json({ message: "Email and OTP are required." });
     }
 
-    const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex");
+    const otpString = String(otp).trim();
+    const hashedOtp = crypto.createHash("sha256").update(otpString).digest("hex");
 
     const user = await User.findOne({
       email,
@@ -183,11 +181,7 @@ const resendVerification = async (req, res) => {
     const otp = user.generateVerificationOtp();
     await user.save({ validateBeforeSave: false });
 
-    await sendEmail({
-      email: user.email,
-      subject: "HD Resorts - Resend Verification Code",
-      message: `Here is your new 6-digit verification code: ${otp}\n\nThis code will expire in 10 minutes.`,
-    });
+    await sendResendVerificationEmail(user.email, otp);
 
     res.json({ success: true, message: "Verification code resent." });
   } catch (err) {
@@ -210,15 +204,8 @@ const forgotPassword = async (req, res) => {
 
     await user.save({ validateBeforeSave: false });
 
-    // Send Email
-    const message = `You are receiving this email because you (or someone else) has requested a password reset for your account.\n\nYour secure recovery token is:\n\n${resetToken}\n\nPlease copy and paste this token into the app to reset your password. This token will expire in 10 minutes.\n\nIf you did not request this, please ignore this email.`;
-
     try {
-      await sendEmail({
-        email: user.email,
-        subject: "HD Resorts - Password Reset Token",
-        message,
-      });
+      await sendPasswordResetEmail(user.email, resetToken);
 
       res.status(200).json({
         success: true,

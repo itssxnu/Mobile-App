@@ -1,13 +1,16 @@
+import React, { useEffect, useState, useRef } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
   StatusBar,
-  ImageBackground,
   Dimensions,
+  Animated,
 } from 'react-native';
 import { Stack, router } from 'expo-router';
+
+import { getToken } from '../src/services/authService';
 
 const { height } = Dimensions.get('window');
 
@@ -19,15 +22,81 @@ const FEATURES = [
   { icon: '🎉', label: 'Events' },
 ];
 
+const SLIDESHOW_IMAGES = [
+  'https://plus.unsplash.com/premium_photo-1730145749791-28fc538d7203?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Sigiriya/Elephants
+  'https://images.unsplash.com/photo-1574611122955-5baa61496637?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Train in Ella
+  'https://images.unsplash.com/photo-1623595289196-007a22dd8560?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Tea plantation
+  'https://images.unsplash.com/photo-1619531103472-7cc0d6479b59?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Beautiful beach
+];
+
 export default function WelcomeScreen() {
+  const [sources, setSources] = useState([SLIDESHOW_IMAGES[0], SLIDESHOW_IMAGES[1]]);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const currentStep = useRef(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const step = currentStep.current;
+      const isTopFadingIn = step % 2 === 0;
+      const nextImageIndex = (step + 2) % SLIDESHOW_IMAGES.length;
+
+      Animated.timing(fadeAnim, {
+        toValue: isTopFadingIn ? 1 : 0,
+        duration: 1500,
+        useNativeDriver: true,
+      }).start(() => {
+        setSources((prev) => {
+          const newSources = [...prev];
+          if (isTopFadingIn) {
+            newSources[0] = SLIDESHOW_IMAGES[nextImageIndex];
+          } else {
+            newSources[1] = SLIDESHOW_IMAGES[nextImageIndex];
+          }
+          return newSources;
+        });
+        currentStep.current += 1;
+      });
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleExplore = async () => {
+    try {
+      const token = await getToken();
+      if (token) {
+        // User is logged in, securely route to their dashboard
+        router.replace('/(tabs)/');
+      } else {
+        // No session, require login
+        router.push('/(auth)/login');
+      }
+    } catch (error) {
+      console.error('Session check failed:', error);
+      router.push('/(auth)/login');
+    }
+  };
+
   return (
     <View style={styles.screen}>
-      <StatusBar barStyle="light-content" backgroundColor="#0D1117" />
+      <StatusBar barStyle="light-content" backgroundColor="#000000" />
       <Stack.Screen options={{ headerShown: false }} />
 
-      {/* Background gradient layers */}
-      <View style={styles.bgTop} />
-      <View style={styles.bgGlow} />
+      {/* Fullscreen Background Image Slideshow (Double Buffered) */}
+      <View style={styles.bgFullscreen}>
+        <Animated.Image
+          source={{ uri: sources[0] }}
+          style={StyleSheet.absoluteFill}
+          resizeMode="cover"
+        />
+        <Animated.Image
+          source={{ uri: sources[1] }}
+          style={[StyleSheet.absoluteFill, { opacity: fadeAnim }]}
+          resizeMode="cover"
+        />
+        {/* Dark gradient overlay to make text readable everywhere */}
+        <View style={styles.imageOverlay} />
+      </View>
 
       {/* Content */}
       <View style={styles.content}>
@@ -63,19 +132,10 @@ export default function WelcomeScreen() {
         <View style={styles.btnGroup}>
           <TouchableOpacity
             style={styles.btnPrimary}
-            onPress={() => router.push('/(auth)/register')}
+            onPress={handleExplore}
             activeOpacity={0.85}
           >
-            <Text style={styles.btnPrimaryText}>Create Account</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.btnSecondary}
-            onPress={() => router.push('/(auth)/login')}
-
-            activeOpacity={0.85}
-          >
-            <Text style={styles.btnSecondaryText}>Sign In</Text>
+            <Text style={styles.btnPrimaryText}>Explore</Text>
           </TouchableOpacity>
         </View>
 
@@ -90,22 +150,16 @@ export default function WelcomeScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: '#dad7cd',
+    backgroundColor: '#000',
   },
 
   // ── Background ───────────────────────────────────
-  bgTop: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: height * 0.45,
-    backgroundColor: '#dad7cd',
-    borderBottomWidth: 1,
-    borderBottomColor: '#a3b18a',
+  bgFullscreen: {
+    ...StyleSheet.absoluteFillObject,
   },
-  bgGlow: {
-    display: 'none',
+  imageOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.45)', // Dark tint for full-screen white text readability
   },
 
   // ── Content ──────────────────────────────────────
@@ -126,9 +180,9 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 24,
-    backgroundColor: '#ffffff',
+    backgroundColor: 'rgba(255,255,255,0.15)',
     borderWidth: 2,
-    borderColor: '#3a5a40',
+    borderColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -138,12 +192,12 @@ const styles = StyleSheet.create({
   appName: {
     fontSize: 30,
     fontWeight: '800',
-    color: '#344e41',
+    color: '#ffffff',
     letterSpacing: -0.5,
   },
   country: {
     fontSize: 14,
-    color: '#588157',
+    color: '#e2e8f0',
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: 1,
@@ -156,15 +210,15 @@ const styles = StyleSheet.create({
   heroTitle: {
     fontSize: 42,
     fontWeight: '900',
-    color: '#344e41',
+    color: '#ffffff',
     lineHeight: 48,
     letterSpacing: -1,
   },
   heroSub: {
     fontSize: 16,
-    color: '#344e41',
+    color: '#e2e8f0',
     lineHeight: 24,
-    opacity: 0.8,
+    opacity: 0.9,
   },
 
   // ── Feature Pills ─────────────────────────────────
@@ -177,9 +231,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#ffffff',
+    backgroundColor: 'rgba(255,255,255,0.2)',
     borderWidth: 1,
-    borderColor: '#a3b18a',
+    borderColor: 'rgba(255,255,255,0.4)',
     borderRadius: 999,
     paddingVertical: 8,
     paddingHorizontal: 14,
@@ -189,7 +243,7 @@ const styles = StyleSheet.create({
   },
   pillLabel: {
     fontSize: 14,
-    color: '#344e41',
+    color: '#ffffff',
     fontWeight: '600',
   },
 
