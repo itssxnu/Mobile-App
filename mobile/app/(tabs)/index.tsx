@@ -106,7 +106,14 @@ export default function DashboardScreen() {
                     <Text style={styles.menuText}>Become a Provider</Text>
                   </TouchableOpacity>
                 ) : user?.role?.toUpperCase() === 'PROVIDER' ? (
-                  <TouchableOpacity style={styles.menuItem} onPress={() => { setMenuVisible(false); Alert.alert('Coming Soon', 'Provider Dashboard is under construction.'); }}>
+                  <TouchableOpacity style={styles.menuItem} onPress={() => { 
+                      setMenuVisible(false); 
+                      const type = user?.providerType?.toUpperCase();
+                      if (type === 'HOST') router.push('/(tabs)/host');
+                      else if (type === 'GUIDE') router.push('/(tabs)/guide');
+                      else if (type === 'ACTIVITY') router.push('/(tabs)/activity');
+                      else if (type === 'EVENT') router.push('/(tabs)/event');
+                  }}>
                     <View style={[styles.menuIconBox, { backgroundColor: '#eef4ed' }]}>
                       <Ionicons name="bar-chart-outline" size={22} color="#3a5a40" />
                     </View>
@@ -137,13 +144,13 @@ export default function DashboardScreen() {
         </TouchableWithoutFeedback>
       </Modal>
 
-      {/* ── Feed Content (Homestays Placeholder) ── */}
+      {/* ── Main Feed ── */}
       <ScrollView contentContainerStyle={styles.feedContent}>
         <View style={styles.placeholderCard}>
-          <Text style={styles.emoji}>🏡</Text>
-          <Text style={styles.title}>Homestays Feed</Text>
+          <Text style={styles.emoji}>🌍</Text>
+          <Text style={styles.title}>Welcome to HD Resorts</Text>
           <Text style={styles.sub}>
-            This section will display the list of available homestays once Member 2 implements GET /api/homestays.
+            This is the main dashboard! This is where people can see all the awesome homestays, activities, guides, and events that providers have published.
           </Text>
         </View>
       </ScrollView>

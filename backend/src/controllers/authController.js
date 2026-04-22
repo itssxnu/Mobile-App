@@ -105,7 +105,9 @@ const loginUser = async (req, res) => {
           id: user._id,
           name: user.name,
           email: user.email,
+          phone: user.phone,
           role: user.role,
+          providerType: user.providerType,
           profilePhoto: user.profilePhoto,
         },
       });
@@ -152,7 +154,9 @@ const verifyEmail = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        phone: user.phone,
         role: user.role,
+        providerType: user.providerType,
         profilePhoto: user.profilePhoto,
       },
     });
@@ -318,6 +322,7 @@ const googleLogin = async (req, res) => {
         email: user.email,
         phone: user.phone,
         role: user.role,
+        providerType: user.providerType,
         profilePhoto: user.profilePhoto,
       },
       missingPhone
