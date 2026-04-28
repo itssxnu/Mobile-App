@@ -17,6 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { getUserData, logout } from '../../src/services/authService';
 import { updateProfile, deleteAccount } from '../../src/services/userService';
+import { API_BASE_URL } from '../../src/config/apiConfig';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -34,8 +35,7 @@ export default function ProfileScreen() {
         setName(data.name);
         setEmail(data.email);
         if (data.profilePhoto) {
-          const API_BASE = process.env.EXPO_PUBLIC_API_URL?.replace('/api', '') || 'http://172.20.10.6:5000';
-          setProfilePhoto(`${API_BASE}${data.profilePhoto}`);
+          setProfilePhoto(`${API_BASE_URL}${data.profilePhoto}`);
         }
       }
     };

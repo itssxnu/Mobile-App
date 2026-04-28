@@ -1,9 +1,9 @@
 import axios from "axios";
 import { getToken, storeUserData } from "./authService";
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL 
-  ? `${process.env.EXPO_PUBLIC_API_URL}/users`
-  : "http://172.20.10.6:5000/api/users";
+import { API_URL as BASE_API_URL } from "../config/apiConfig";
+
+const API_URL = `${BASE_API_URL}/users`;
 
 const getAuthHeaders = async (isFormData = false) => {
   const token = await getToken();
