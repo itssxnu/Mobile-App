@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityInd
 import axios from 'axios';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { API_URL } from '../../src/config/apiConfig';
 
 export default function ForgotPassword() {
     const router = useRouter();
@@ -17,7 +18,6 @@ export default function ForgotPassword() {
 
         setLoading(true);
         try {
-            const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://172.20.10.6:5000/api';
             const res = await axios.post(`${API_URL}/auth/forgot-password`, { email: email.trim().toLowerCase() });
             
             // Pop up the success message

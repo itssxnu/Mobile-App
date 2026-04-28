@@ -13,6 +13,7 @@ import {
 import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { getUserData, logout } from '../../src/services/authService';
+import { API_BASE_URL } from '../../src/config/apiConfig';
 
 export default function DashboardScreen() {
   const router = useRouter();
@@ -41,8 +42,7 @@ export default function DashboardScreen() {
 
   const getProfileImageUrl = () => {
     if (user?.profilePhoto) {
-      const API_BASE = process.env.EXPO_PUBLIC_API_URL?.replace('/api', '') || 'http://172.20.10.6:5000';
-      return { uri: `${API_BASE}${user.profilePhoto}` };
+      return { uri: `${API_BASE_URL}${user.profilePhoto}` };
     }
     return null;
   };

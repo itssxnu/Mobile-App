@@ -9,6 +9,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
+import { API_URL } from '../../src/config/apiConfig';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -51,7 +52,6 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       // Using direct axios for the google endpoint since it's not in authService yet
-      const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://172.20.10.6:5000/api';
       const res = await axios.post(`${API_URL}/auth/google`, { idToken });
       
       if (res.data.missingPhone) {

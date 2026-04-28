@@ -1,10 +1,10 @@
 import axios from "axios";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { API_URL as BASE_API_URL } from "../config/apiConfig";
+
 // Direct API URL
-const API_URL = process.env.EXPO_PUBLIC_API_URL 
-  ? `${process.env.EXPO_PUBLIC_API_URL}/auth`
-  : "http://172.20.10.6:5000/api/auth";
+const API_URL = `${BASE_API_URL}/auth`;
 
 // Token management using AsyncStorage
 export const storeToken = async (token) => {

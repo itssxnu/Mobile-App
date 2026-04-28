@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityInd
 import axios from 'axios';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { API_URL } from '../../src/config/apiConfig';
 
 export default function ResetPassword() {
     const router = useRouter();
@@ -29,7 +30,6 @@ export default function ResetPassword() {
 
         setLoading(true);
         try {
-            const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://172.20.10.6:5000/api';
             const res = await axios.put(`${API_URL}/auth/reset-password/${token.trim()}`, { password });
             
             Alert.alert('Success', 'Your password has been successfully reset!', [
