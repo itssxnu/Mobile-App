@@ -44,9 +44,9 @@ export default function AttractionsList() {
   };
 
   const renderItem = ({ item }) => {
-    const photoUrl = item.photo.startsWith("http")
-      ? item.photo
-      : `${API_BASE_URL}${item.photo}`;
+    const photoUrl = item.coverPhoto.startsWith("http")
+      ? item.coverPhoto
+      : `${API_BASE_URL}${item.coverPhoto}`;
 
     return (
       <TouchableOpacity

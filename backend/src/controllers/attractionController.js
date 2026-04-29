@@ -10,9 +10,16 @@ exports.createAttraction = async (req, res) => {
       provider: req.user.id, // from auth middleware
     };
 
-    if (req.file) {
-      // Store the relative path to the uploaded photo
-      attractionData.photo = `/uploads/attractions/${req.file.filename}`;
+    if (req.files) {
+      if (req.files.coverPhoto && req.files.coverPhoto.length > 0) {
+        attractionData.coverPhoto = `/uploads/attractions/${req.files.coverPhoto[0].filename}`;
+      }
+      
+      if (req.files.additionalPhotos && req.files.additionalPhotos.length > 0) {
+        attractionData.additionalPhotos = req.files.additionalPhotos.map(
+          (file) => `/uploads/attractions/${file.filename}`
+        );
+      }
     }
 
     const attraction = await attractionService.createAttraction(attractionData);

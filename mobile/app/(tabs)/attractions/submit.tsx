@@ -24,10 +24,11 @@ export default function SubmitAttraction() {
   const [district, setDistrict] = useState("");
   const [difficultyLevel, setDifficultyLevel] = useState("Easy");
   const [entryFee, setEntryFee] = useState("");
-  const [photo, setPhoto] = useState(null);
+  const [coverPhoto, setCoverPhoto] = useState(null);
+  const [additionalPhotos, setAdditionalPhotos] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const pickImage = async () => {
+  const pickCoverPhoto = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
@@ -36,13 +37,30 @@ export default function SubmitAttraction() {
     });
 
     if (!result.canceled) {
-      setPhoto(result.assets[0].uri);
+      setCoverPhoto(result.assets[0].uri);
     }
   };
 
+  const pickAdditionalPhotos = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsMultipleSelection: true,
+      quality: 0.7,
+    });
+
+    if (!result.canceled) {
+      const newUris = result.assets.map(asset => asset.uri);
+      setAdditionalPhotos(prev => [...prev, ...newUris].slice(0, 5)); // Limit to 5
+    }
+  };
+
+  const removeAdditionalPhoto = (index) => {
+    setAdditionalPhotos(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async () => {
-    if (!name.trim() || !description.trim() || !district.trim() || !photo) {
-      Alert.alert("Required", "Please fill all required fields and upload a photo.");
+    if (!name.trim() || !description.trim() || !district.trim() || !coverPhoto) {
+      Alert.alert("Required", "Please fill all required fields and upload a cover photo.");
       return;
     }
 
@@ -55,14 +73,21 @@ export default function SubmitAttraction() {
       formData.append("difficultyLevel", difficultyLevel);
       formData.append("entryFee", entryFee ? Number(entryFee) : 0);
 
-      const filename = photo.split("/").pop() || "photo.jpg";
-      const match = /\.(\w+)$/.exec(filename);
-      const type = match ? `image/${match[1]}` : `image/jpeg`;
+      const formatFile = (uri, index = "") => {
+        const filename = uri.split("/").pop() || `photo${index}.jpg`;
+        const match = /\.(\w+)$/.exec(filename);
+        const type = match ? `image/${match[1]}` : `image/jpeg`;
+        return {
+          uri: Platform.OS === "android" ? uri : uri.replace("file://", ""),
+          name: filename,
+          type: type,
+        };
+      };
 
-      formData.append("photo", {
-        uri: Platform.OS === "android" ? photo : photo.replace("file://", ""),
-        name: filename,
-        type: type,
+      formData.append("coverPhoto", formatFile(coverPhoto));
+
+      additionalPhotos.forEach((uri, i) => {
+        formData.append("additionalPhotos", formatFile(uri, i));
       });
 
       await createAttraction(formData);
@@ -140,17 +165,38 @@ export default function SubmitAttraction() {
             />
           </View>
 
-          <Text style={styles.sectionTitle}>Scenic Landscape Photo *</Text>
-          <TouchableOpacity style={styles.photoUpload} onPress={pickImage}>
-            {photo ? (
-              <Image source={{ uri: photo }} style={styles.uploadedPhoto} />
+          <Text style={styles.sectionTitle}>Cover Photo *</Text>
+          <TouchableOpacity style={styles.photoUpload} onPress={pickCoverPhoto}>
+            {coverPhoto ? (
+              <Image source={{ uri: coverPhoto }} style={styles.uploadedPhoto} />
             ) : (
               <View style={styles.photoPlaceholder}>
                 <Ionicons name="camera-outline" size={40} color="#a3b18a" />
-                <Text style={styles.photoText}>Tap to Upload</Text>
+                <Text style={styles.photoText}>Tap to Upload Cover</Text>
               </View>
             )}
           </TouchableOpacity>
+
+          <View style={styles.sectionHeaderRow}>
+            <Text style={styles.sectionTitle}>Additional Photos</Text>
+            <Text style={styles.photoCount}>{additionalPhotos.length}/5</Text>
+          </View>
+          
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.additionalPhotosScroll}>
+            {additionalPhotos.map((uri, idx) => (
+              <View key={idx} style={styles.additionalPhotoWrapper}>
+                <Image source={{ uri }} style={styles.additionalPhoto} />
+                <TouchableOpacity style={styles.removePhotoBtn} onPress={() => removeAdditionalPhoto(idx)}>
+                  <Ionicons name="close" size={16} color="#fff" />
+                </TouchableOpacity>
+              </View>
+            ))}
+            {additionalPhotos.length < 5 && (
+              <TouchableOpacity style={styles.addMorePhotoBtn} onPress={pickAdditionalPhotos}>
+                <Ionicons name="add" size={30} color="#a3b18a" />
+              </TouchableOpacity>
+            )}
+          </ScrollView>
 
           <TouchableOpacity style={styles.primaryButton} onPress={handleSubmit} disabled={loading}>
             {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryButtonText}>Submit Attraction</Text>}
@@ -188,10 +234,17 @@ const styles = StyleSheet.create({
   choiceButtonActive: { backgroundColor: "#3a5a40", borderColor: "#3a5a40" },
   choiceText: { color: "#588157", fontWeight: "600" },
   choiceTextActive: { color: "#ffffff" },
-  photoUpload: { height: 200, borderRadius: 16, borderWidth: 2, borderColor: "#a3b18a", borderStyle: "dashed", overflow: "hidden", marginBottom: 24 },
+  photoUpload: { height: 200, borderRadius: 16, borderWidth: 2, borderColor: "#a3b18a", borderStyle: "dashed", overflow: "hidden", marginBottom: 16 },
   photoPlaceholder: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#f8f9fa" },
   photoText: { marginTop: 8, color: "#588157", fontWeight: "600" },
   uploadedPhoto: { width: "100%", height: "100%", resizeMode: "cover" },
+  sectionHeaderRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 8 },
+  photoCount: { fontSize: 14, color: "#588157", fontWeight: "700" },
+  additionalPhotosScroll: { paddingBottom: 24, gap: 12 },
+  additionalPhotoWrapper: { width: 100, height: 100, borderRadius: 12, overflow: "hidden", position: "relative" },
+  additionalPhoto: { width: "100%", height: "100%", resizeMode: "cover" },
+  removePhotoBtn: { position: "absolute", top: 4, right: 4, backgroundColor: "rgba(0,0,0,0.5)", width: 24, height: 24, borderRadius: 12, justifyContent: "center", alignItems: "center" },
+  addMorePhotoBtn: { width: 100, height: 100, borderRadius: 12, borderWidth: 2, borderColor: "#a3b18a", borderStyle: "dashed", justifyContent: "center", alignItems: "center", backgroundColor: "#f8f9fa" },
   primaryButton: { backgroundColor: "#3a5a40", borderRadius: 14, padding: 16, alignItems: "center" },
   primaryButtonText: { color: "#ffffff", fontSize: 16, fontWeight: "700" },
 });

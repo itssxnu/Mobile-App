@@ -27,9 +27,13 @@ const attractionSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    photo: {
+    coverPhoto: {
       type: String,
       default: "no-photo.jpg",
+    },
+    additionalPhotos: {
+      type: [String],
+      default: [],
     },
     provider: {
       type: mongoose.Schema.ObjectId,

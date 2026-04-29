@@ -114,9 +114,9 @@ export default function AttractionDetail() {
     );
   }
 
-  const photoUrl = attraction.photo.startsWith("http")
-    ? attraction.photo
-    : `${API_BASE_URL}${attraction.photo}`;
+  const photoUrl = attraction.coverPhoto.startsWith("http")
+    ? attraction.coverPhoto
+    : `${API_BASE_URL}${attraction.coverPhoto}`;
 
   return (
     <View style={styles.screen}>
@@ -163,6 +163,21 @@ export default function AttractionDetail() {
             />
           ) : (
             <Text style={styles.description}>{attraction.description}</Text>
+          )}
+
+          {!isEditing && attraction.additionalPhotos && attraction.additionalPhotos.length > 0 && (
+            <View style={styles.gallerySection}>
+              <Text style={styles.sectionTitle}>Gallery</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.galleryScroll}>
+                {attraction.additionalPhotos.map((photoUri, idx) => (
+                  <Image 
+                    key={idx} 
+                    source={{ uri: photoUri.startsWith("http") ? photoUri : `${API_BASE_URL}${photoUri}` }} 
+                    style={styles.galleryImage} 
+                  />
+                ))}
+              </ScrollView>
+            </View>
           )}
 
           {isEditing && (
@@ -263,6 +278,9 @@ const styles = StyleSheet.create({
   badgeText: { fontSize: 13, fontWeight: "700", color: "#344e41" },
   sectionTitle: { fontSize: 18, fontWeight: "800", color: "#344e41", marginBottom: 12 },
   description: { fontSize: 15, color: "#588157", lineHeight: 24, marginBottom: 24 },
+  gallerySection: { marginBottom: 24 },
+  galleryScroll: { gap: 12 },
+  galleryImage: { width: 140, height: 140, borderRadius: 16, resizeMode: "cover" },
   
   // Edit mode styles
   input: { backgroundColor: "#ffffff", borderWidth: 1, borderColor: "#a3b18a", borderRadius: 12, padding: 14, color: "#344e41", fontSize: 15, marginBottom: 24 },

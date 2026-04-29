@@ -13,7 +13,14 @@ const {
 router
   .route("/")
   .get(getAttractions)
-  .post(protect, attractionUpload.single("photo"), createAttraction);
+  .post(
+    protect,
+    attractionUpload.fields([
+      { name: "coverPhoto", maxCount: 1 },
+      { name: "additionalPhotos", maxCount: 10 },
+    ]),
+    createAttraction
+  );
 
 router
   .route("/:id")
