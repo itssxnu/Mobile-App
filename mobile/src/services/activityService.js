@@ -17,3 +17,14 @@ export const createActivity = async (formData) => {
     return response.data;
 };
 
+export const updateActivity = async (id, formData) => {
+    const token = await AsyncStorage.getItem('userToken');
+    const response = await API.put(`/activities/${id}`, formData, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+    return response.data;
+};
+
