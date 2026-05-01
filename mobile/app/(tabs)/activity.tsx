@@ -171,4 +171,150 @@ export default function ActivitiesScreen() {
         setExistingImage(null);
     };
 
+    // Determine if user has rights to add an activity
+    const userRole = currentUser?.role?.toUpperCase();
+    const canManageActivities = currentUser && (userRole === 'ADMIN' || userRole === 'PROVIDER');
+
+    const renderActivityItem = ({ item }: { item: any }) => {
+        const baseUrl = API_URL.replace('/api', '');
+        const imgSource = item.actionShot ? { uri: `${baseUrl}${item.actionShot}` } : null;
+
+        // Determine if user owns this specific activity (or is an Admin)
+        const currentUserId = currentUser?.id || currentUser?._id;
+        const isOwner = currentUser && (currentUserId === item.host?._id || userRole === 'ADMIN');
+
+        return (
+            <TouchableOpacity style={styles.card} onPress={() => openDetailModal(item)}>
+                {imgSource ? (
+                    <Image source={imgSource} style={styles.cardImage} />
+                ) : (
+                    <View style={styles.cardPlaceholderImage}>
+                        <Ionicons name="image-outline" size={32} color="#aaa" />
+                    </View>
+                )}
+                <View style={styles.cardContent}>
+                    <Text style={styles.cardTitle}>{item.title}</Text>
+                    <Text style={styles.cardProvider}>By {item.providerName}</Text>
+
+                    <View style={styles.cardDetailsRow}>
+                        <Text style={styles.cardDetailText}>{item.category}</Text>
+                        <Text style={styles.cardDetailText}>{item.duration} hrs</Text>
+                        <Text style={styles.cardPrice}>${item.pricePerPerson}</Text>
+                    </View>
+
+                    {isOwner && (
+                        <View style={styles.actionButtonsRow}>
+                            <TouchableOpacity style={styles.editButton} onPress={() => openEditModal(item)}>
+                                <Ionicons name="pencil-outline" size={18} color="#1e40af" />
+                                <Text style={styles.editButtonText}>Edit</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(item._id)}>
+                                <Ionicons name="trash-outline" size={18} color="#dc2626" />
+                                <Text style={styles.deleteButtonText}>Delete</Text>
+                            </TouchableOpacity>
+                        </View>
+                    )}
+                </View>
+            </TouchableOpacity>
+        );
+    };
+
+    if (loading) {
+        return (
+            <View style={styles.center}>
+                <ActivityIndicator size="large" color="#344e41" />
+            </View>
+        );
+    }
+
+    return (
+        <SafeAreaView style={styles.safeArea}>
+            <View style={styles.header}>
+                <TouchableOpacity onPress={() => router.replace('/')} style={styles.backButton}>
+                    <Ionicons name="arrow-back" size={24} color="#344e41" />
+                </TouchableOpacity>
+                <Text style={styles.headerTitle}>Activities</Text>
+
+                {canManageActivities ? (
+                    <TouchableOpacity onPress={openCreateModal} style={styles.addButton}>
+                        <Ionicons name="add" size={26} color="#344e41" />
+                    </TouchableOpacity>
+                ) : (
+                    <View style={{ width: 24 }} />
+                )}
+            </View>
+
+            <FlatList
+                data={activities}
+                keyExtractor={(item) => item._id}
+                renderItem={renderActivityItem}
+                contentContainerStyle={styles.listContent}
+                refreshing={refreshing}
+                onRefresh={() => { setRefreshing(true); loadData(); }}
+                ListEmptyComponent={
+                    <View style={styles.emptyContainer}>
+                        <Ionicons name="sad-outline" size={48} color="#aaa" />
+                        <Text style={styles.emptyText}>No activities available right now.</Text>
+                    </View>
+                }
+            />
+
+            {/* Create / Edit Activity Modal */}
+            <Modal visible={modalVisible} transparent animationType="slide">
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <View style={styles.modalHeader}>
+                            <Text style={styles.modalTitle}>
+                                {editingActivityId ? 'Edit Activity' : 'Add New Activity'}
+                            </Text>
+                            <TouchableOpacity onPress={() => setModalVisible(false)}>
+                                <Ionicons name="close" size={24} color="#333" />
+                            </TouchableOpacity>
+                        </View>
+
+                        <ScrollView showsVerticalScrollIndicator={false}>
+                            <Text style={styles.label}>Title</Text>
+                            <TextInput style={styles.input} value={title} onChangeText={setTitle} placeholder="e.g. Scuba Diving" />
+
+                            <Text style={styles.label}>Provider Name</Text>
+                            <TextInput style={styles.input} value={providerName} onChangeText={setProviderName} placeholder="Your Company Name" />
+
+                            <View style={styles.row}>
+                                <View style={{ flex: 1, marginRight: 8 }}>
+                                    <Text style={styles.label}>Duration (hrs)</Text>
+                                    <TextInput style={styles.input} value={duration} onChangeText={setDuration} keyboardType="numeric" placeholder="e.g. 2" />
+                                </View>
+                                <View style={{ flex: 1, marginLeft: 8 }}>
+                                    <Text style={styles.label}>Price ($)</Text>
+                                    <TextInput style={styles.input} value={pricePerPerson} onChangeText={setPricePerPerson} keyboardType="numeric" placeholder="e.g. 100" />
+                                </View>
+                            </View>
+
+                            <Text style={styles.label}>Category</Text>
+                            <TextInput style={styles.input} value={category} onChangeText={setCategory} placeholder="e.g. Water Sports" />
+
+                            <Text style={styles.label}>Action Shot</Text>
+                            <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
+                                {imageUri ? (
+                                    <Image source={{ uri: imageUri }} style={styles.previewImage} />
+                                ) : existingImage ? (
+                                    <Image source={{ uri: existingImage }} style={styles.previewImage} />
+                                ) : (
+                                    <Text style={styles.imagePickerText}>Tap to select an image</Text>
+                                )}
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.submitButton} onPress={handleSaveActivity} disabled={formLoading}>
+                                {formLoading ? <ActivityIndicator color="#fff" /> : (
+                                    <Text style={styles.submitButtonText}>
+                                        {editingActivityId ? 'Save Changes' : 'Create Activity'}
+                                    </Text>
+                                )}
+                            </TouchableOpacity>
+                        </ScrollView>
+                    </View>
+                </View>
+            </Modal>
+
 
