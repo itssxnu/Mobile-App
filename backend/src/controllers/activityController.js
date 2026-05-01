@@ -47,3 +47,32 @@ const getActivityById = async (req, res) => {
     }
 };
 
+const updateActivity = async (req, res) => {
+    try {
+        const activity = await Activity.findById(req.params.id);
+
+        if (!activity) {
+            return res.status(404).json({ message: 'Activity not found' });
+        }
+
+        if (activity.host.toString() !== req.user._id.toString() && req.user.role !== 'ADMIN') {
+            return res.status(401).json({ message: 'Not authorized' });
+        }
+
+        activity.pricePerPerson = req.body.pricePerPerson || activity.pricePerPerson;
+        activity.duration = req.body.duration || activity.duration;
+
+        if(req.body.title) activity.title = req.body.title;
+        if(req.body.category) activity.category = req.body.category;
+
+        if (req.file) {
+            activity.actionShot = `/uploads/activities/${req.file.filename}`;
+        }
+
+        const updatedActivity = await activity.save();
+        res.json(updatedActivity);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
