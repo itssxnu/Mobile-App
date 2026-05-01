@@ -34,3 +34,16 @@ const getActivities = async (req, res) => {
     }
 };
 
+const getActivityById = async (req, res) => {
+    try {
+        const activity = await Activity.findById(req.params.id).populate('host', 'name email');
+        if (activity) {
+            res.json(activity);
+        } else {
+            res.status(404).json({ message: 'Activity not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
