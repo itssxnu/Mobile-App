@@ -28,3 +28,12 @@ export const updateActivity = async (id, formData) => {
     return response.data;
 };
 
+export const deleteActivity = async (id) => {
+    const token = await AsyncStorage.getItem('userToken');
+    const response = await API.delete(`/activities/${id}`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+    return response.data;
+};
