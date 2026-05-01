@@ -76,3 +76,29 @@ const updateActivity = async (req, res) => {
     }
 };
 
+const deleteActivity = async (req, res) => {
+    try {
+        const activity = await Activity.findById(req.params.id);
+
+        if (!activity) {
+            return res.status(404).json({ message: 'Activity not found' });
+        }
+
+        if (activity.host.toString() !== req.user._id.toString() && req.user.role !== 'ADMIN') {
+            return res.status(401).json({ message: 'Not authorized' });
+        }
+
+        await activity.deleteOne();
+        res.json({ message: 'Activity removed' });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+module.exports = {
+    createActivity,
+    getActivities,
+    getActivityById,
+    updateActivity,
+    deleteActivity
+};
