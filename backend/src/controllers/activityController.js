@@ -25,3 +25,12 @@ const createActivity = async (req, res) => {
     }
 };
 
+const getActivities = async (req, res) => {
+    try {
+        const activities = await Activity.find({}).populate('host', 'name email');
+        res.json(activities);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
