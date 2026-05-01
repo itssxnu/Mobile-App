@@ -317,4 +317,88 @@ export default function ActivitiesScreen() {
                 </View>
             </Modal>
 
+            {/* Detail Modal */}
+            <Modal visible={detailModalVisible} transparent animationType="slide">
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.modalContent, { height: '95%' }]}>
+                        <View style={styles.modalHeader}>
+                            <Text style={styles.modalTitle}>Activity Details</Text>
+                            <TouchableOpacity onPress={() => setDetailModalVisible(false)}>
+                                <Ionicons name="close" size={24} color="#333" />
+                            </TouchableOpacity>
+                        </View>
 
+                        {selectedItem && (
+                            <ScrollView showsVerticalScrollIndicator={false}>
+                                {selectedItem.actionShot && (
+                                    <Image
+                                        source={{ uri: `${API_URL.replace('/api', '')}${selectedItem.actionShot}` }}
+                                        style={[styles.cardImage, { borderRadius: 12, marginBottom: 16 }]}
+                                    />
+                                )}
+                                <Text style={[styles.cardTitle, { fontSize: 22 }]}>{selectedItem.title}</Text>
+                                <Text style={styles.cardProvider}>By {selectedItem.providerName}</Text>
+
+                                <View style={[styles.cardDetailsRow, { marginBottom: 16 }]}>
+                                    <Text style={styles.cardDetailText}>{selectedItem.category}</Text>
+                                    <Text style={styles.cardDetailText}>{selectedItem.duration} hrs</Text>
+                                    <Text style={styles.cardPrice}>${selectedItem.pricePerPerson}</Text>
+                                </View>
+
+                                <ReviewList
+                                    targetId={selectedItem._id}
+                                    targetType="Activity"
+                                    isItemOwner={currentUser && (currentUser?.id || currentUser?._id) === selectedItem.host?._id}
+                                />
+                            </ScrollView>
+                        )}
+                    </View>
+                </View>
+            </Modal>
+        </SafeAreaView>
+    );
+}
+
+const styles = StyleSheet.create({
+    safeArea: { flex: 1, backgroundColor: '#dad7cd', paddingTop: Platform.OS === 'android' ? 25 : 0 },
+    center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#dad7cd' },
+    header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 16, backgroundColor: '#dad7cd' },
+    backButton: { padding: 8, marginLeft: -8 },
+    addButton: { padding: 8, marginRight: -8 },
+    headerTitle: { fontSize: 18, fontWeight: '700', color: '#344e41' },
+    listContent: { padding: 16, gap: 16 },
+    emptyContainer: { alignItems: 'center', marginTop: 50 },
+    emptyText: { marginTop: 10, fontSize: 16, color: '#666' },
+
+    // Card Styles
+    card: { backgroundColor: '#fff', borderRadius: 16, overflow: 'hidden', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 5, elevation: 3 },
+    cardImage: { width: '100%', height: 180 },
+    cardPlaceholderImage: { width: '100%', height: 180, backgroundColor: '#f0f0f0', justifyContent: 'center', alignItems: 'center' },
+    cardContent: { padding: 16 },
+    cardTitle: { fontSize: 18, fontWeight: 'bold', color: '#333' },
+    cardProvider: { fontSize: 14, color: '#666', marginTop: 4, marginBottom: 12 },
+    cardDetailsRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    cardDetailText: { fontSize: 13, backgroundColor: '#f1f5f9', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, color: '#475569', fontWeight: '600' },
+    cardPrice: { fontSize: 16, fontWeight: 'bold', color: '#1e40af' },
+
+    // Action Buttons
+    actionButtonsRow: { flexDirection: 'row', marginTop: 16, gap: 10 },
+    editButton: { flexDirection: 'row', alignItems: 'center', padding: 8, backgroundColor: '#dbeafe', borderRadius: 8 },
+    editButtonText: { color: '#1e40af', fontWeight: 'bold', marginLeft: 4, fontSize: 13 },
+    deleteButton: { flexDirection: 'row', alignItems: 'center', padding: 8, backgroundColor: '#fee2e2', borderRadius: 8 },
+    deleteButtonText: { color: '#dc2626', fontWeight: 'bold', marginLeft: 4, fontSize: 13 },
+
+    // Modal Styles
+    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+    modalContent: { backgroundColor: '#fff', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, maxHeight: '90%' },
+    modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+    modalTitle: { fontSize: 20, fontWeight: 'bold', color: '#333' },
+    label: { fontSize: 14, fontWeight: '600', color: '#555', marginBottom: 6, marginTop: 12 },
+    input: { backgroundColor: '#f9f9f9', borderWidth: 1, borderColor: '#ddd', borderRadius: 10, padding: 12, fontSize: 15 },
+    row: { flexDirection: 'row', justifyContent: 'space-between' },
+    imagePicker: { height: 120, backgroundColor: '#f9f9f9', borderWidth: 1, borderColor: '#ddd', borderStyle: 'dashed', borderRadius: 10, justifyContent: 'center', alignItems: 'center', overflow: 'hidden', marginTop: 5 },
+    imagePickerText: { color: '#888', fontSize: 14 },
+    previewImage: { width: '100%', height: '100%' },
+    submitButton: { backgroundColor: '#344e41', padding: 16, borderRadius: 12, alignItems: 'center', marginTop: 24, marginBottom: 20 },
+    submitButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' }
+});
