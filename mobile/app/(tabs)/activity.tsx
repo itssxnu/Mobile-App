@@ -36,3 +36,109 @@ export default function ActivitiesScreen() {
     const [imageUri, setImageUri] = useState<string | null>(null);
     const [existingImage, setExistingImage] = useState<string | null>(null);
 
+    const loadData = async () => {
+        try {
+            const data = await getUserData();
+            if (data) {
+                setCurrentUser(data);
+            }
+            const activitiesData = await getActivities();
+            setActivities(activitiesData);
+        } catch (error: any) {
+            Alert.alert('Error', 'Failed to load activities.');
+        } finally {
+            setLoading(false);
+            setRefreshing(false);
+        }
+    };
+
+    useEffect(() => {
+        loadData();
+    }, []);
+
+    const pickImage = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ['images'],
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
+        });
+
+        if (!result.canceled) {
+            setImageUri(result.assets[0].uri);
+            setExistingImage(null); // Clear the existing image preview if a new one is picked
+        }
+    };
+
+    const handleSaveActivity = async () => {
+        if (!title || !providerName || !duration || !pricePerPerson || !category) {
+            Alert.alert('Error', 'Please fill out all required fields.');
+            return;
+        }
+
+        setFormLoading(true);
+        try {
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('providerName', providerName);
+            formData.append('duration', duration);
+            formData.append('pricePerPerson', pricePerPerson);
+            formData.append('category', category);
+
+            if (imageUri) {
+                // @ts-ignore
+                formData.append('actionShot', {
+                    uri: imageUri,
+                    name: 'actionShot.jpg',
+                    type: 'image/jpeg'
+                });
+            }
+
+            if (editingActivityId) {
+                await updateActivity(editingActivityId, formData);
+                Alert.alert('Success', 'Activity updated successfully!');
+            } else {
+                await createActivity(formData);
+                Alert.alert('Success', 'Activity created successfully!');
+            }
+
+            setModalVisible(false);
+            resetForm();
+            loadData();
+        } catch (error: any) {
+            Alert.alert('Error', error.response?.data?.message || 'Failed to save activity.');
+        } finally {
+            setFormLoading(false);
+        }
+    };
+
+    const openCreateModal = () => {
+        resetForm();
+        setModalVisible(true);
+    };
+
+    const openDetailModal = (item: any) => {
+        setSelectedItem(item);
+        setDetailModalVisible(true);
+    };
+
+    const openEditModal = (activity: any) => {
+        setEditingActivityId(activity._id);
+        setTitle(activity.title);
+        setProviderName(activity.providerName);
+        setDuration(activity.duration.toString());
+        setPricePerPerson(activity.pricePerPerson.toString());
+        setCategory(activity.category);
+        setImageUri(null);
+
+        if (activity.actionShot) {
+            const baseUrl = API_URL.replace('/api', '');
+            setExistingImage(`${baseUrl}${activity.actionShot}`);
+        } else {
+            setExistingImage(null);
+        }
+
+        setModalVisible(true);
+    };
+
+
