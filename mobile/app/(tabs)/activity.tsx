@@ -141,4 +141,34 @@ export default function ActivitiesScreen() {
         setModalVisible(true);
     };
 
+    const handleDelete = (id: string) => {
+        Alert.alert('Delete Activity', 'Are you sure you want to delete this activity?', [
+            { text: 'Cancel', style: 'cancel' },
+            {
+                text: 'Delete',
+                style: 'destructive',
+                onPress: async () => {
+                    try {
+                        await deleteActivity(id);
+                        Alert.alert('Success', 'Activity deleted.');
+                        loadData();
+                    } catch (error: any) {
+                        Alert.alert('Error', 'Failed to delete activity.');
+                    }
+                }
+            }
+        ]);
+    };
+
+    const resetForm = () => {
+        setEditingActivityId(null);
+        setTitle('');
+        setProviderName('');
+        setDuration('');
+        setPricePerPerson('');
+        setCategory('');
+        setImageUri(null);
+        setExistingImage(null);
+    };
+
 
