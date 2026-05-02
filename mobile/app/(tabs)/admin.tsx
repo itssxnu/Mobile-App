@@ -146,6 +146,9 @@ export default function AdminDashboard() {
                                     <TouchableOpacity style={styles.modalBtnProvider} onPress={() => updateRole(selectedUserId!, 'PROVIDER', 'EVENT')}>
                                         <Text style={styles.modalBtnTextProvider}>Event</Text>
                                     </TouchableOpacity>
+                                    <TouchableOpacity style={styles.modalBtnProvider} onPress={() => updateRole(selectedUserId!, 'PROVIDER', 'ATTRACTION')}>
+                                        <Text style={styles.modalBtnTextProvider}>Attraction</Text>
+                                    </TouchableOpacity>
                                 </View>
 
                                 <TouchableOpacity style={styles.modalBtnUser} onPress={() => updateRole(selectedUserId!, 'USER')}>
