@@ -23,12 +23,12 @@ app.use("/api/users", require("./src/routes/userRoutes"));
 // app.use("/api/users", require("./src/routes/userRoutes")); // COMMENT THIS OUT FOR NOW
 
 // TODO: Add module routes below as each team member completes their slice
-// app.use("/api/homestays",  require("./src/routes/homestayRoutes"));
+app.use("/api/homestays",  require("./src/routes/homestayRoutes"));
 app.use("/api/attractions", require("./src/routes/attractionRoutes"));
-// app.use("/api/guides",     require("./src/routes/guideRoutes"));
-// app.use("/api/activities", require("./src/routes/activityRoutes"));
-// app.use("/api/events",     require("./src/routes/eventRoutes"));
-// app.use("/api/reviews",    require("./src/routes/reviewRoutes"));
+app.use("/api/guides", require("./src/routes/guideRoutes"));
+app.use("/api/activities", require("./src/routes/activityRoutes"));
+app.use("/api/events", require("./src/routes/eventRoutes"));
+app.use("/api/reviews", require("./src/routes/reviewRoutes"));
 
 // Health check
 app.get("/", (req, res) => {
