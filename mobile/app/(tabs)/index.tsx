@@ -153,6 +153,17 @@ export default function DashboardScreen() {
             This is the main dashboard! This is where people can see all the awesome homestays, activities, guides, and events that providers have published.
           </Text>
         </View>
+
+        <TouchableOpacity 
+          style={[styles.placeholderCard, { marginTop: 16, backgroundColor: '#eef4ed' }]}
+          onPress={() => router.push('/(tabs)/attractions')}
+        >
+          <Text style={styles.emoji}>🏞️</Text>
+          <Text style={styles.title}>Hidden Gems</Text>
+          <Text style={styles.sub}>
+            Discover and share beautiful attractions, waterfalls, and viewpoints!
+          </Text>
+        </TouchableOpacity>
       </ScrollView>
       
     </View>
