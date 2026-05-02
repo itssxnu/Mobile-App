@@ -113,6 +113,7 @@ export default function DashboardScreen() {
                       else if (type === 'GUIDE') router.push('/(tabs)/guide');
                       else if (type === 'ACTIVITY') router.push('/(tabs)/activity');
                       else if (type === 'EVENT') router.push('/(tabs)/event');
+                      else if (type === 'ATTRACTION') router.push('/(tabs)/attraction');
                   }}>
                     <View style={[styles.menuIconBox, { backgroundColor: '#eef4ed' }]}>
                       <Ionicons name="bar-chart-outline" size={22} color="#3a5a40" />
@@ -152,7 +153,52 @@ export default function DashboardScreen() {
           <Text style={styles.sub}>
             This is the main dashboard! This is where people can see all the awesome homestays, activities, guides, and events that providers have published.
           </Text>
+          <TouchableOpacity 
+            style={styles.exploreBtn}
+            onPress={() => router.push('/(tabs)/activity')}
+          >
+            <Text style={styles.exploreBtnText}>Explore Activities</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[styles.exploreBtn, { backgroundColor: '#588157', marginTop: 12 }]}
+            onPress={() => router.push('/(tabs)/attraction')}
+          >
+            <Text style={styles.exploreBtnText}>Explore Attractions</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[styles.exploreBtn, { backgroundColor: '#3a5a40', marginTop: 12 }]}
+            onPress={() => router.push('/(tabs)/guide')}
+          >
+            <Text style={styles.exploreBtnText}>Find Local Guides</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[styles.exploreBtn, { backgroundColor: '#2d6a4f', marginTop: 12 }]}
+            onPress={() => router.push('/(tabs)/host')}
+          >
+            <Text style={styles.exploreBtnText}>Explore Homestays</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[styles.exploreBtn, { backgroundColor: '#1e40af', marginTop: 12 }]}
+            onPress={() => router.push('/(tabs)/event')}
+          >
+            <Text style={styles.exploreBtnText}>Explore Events</Text>
+          </TouchableOpacity>
         </View>
+
+        <TouchableOpacity 
+          style={[styles.placeholderCard, { marginTop: 16, backgroundColor: '#eef4ed' }]}
+          onPress={() => router.push('/(tabs)/attractions')}
+        >
+          <Text style={styles.emoji}>🏞️</Text>
+          <Text style={styles.title}>Hidden Gems</Text>
+          <Text style={styles.sub}>
+            Discover and share beautiful attractions, waterfalls, and viewpoints!
+          </Text>
+        </TouchableOpacity>
       </ScrollView>
       
     </View>
@@ -288,4 +334,18 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     fontWeight: '500',
   },
+  exploreBtn: {
+    marginTop: 20,
+    backgroundColor: '#344e41',
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    width: '100%',
+    alignItems: 'center',
+  },
+  exploreBtnText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '700',
+  }
 });
