@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { 
+import {
     View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, Image, ActivityIndicator, FlatList, Modal
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -96,7 +96,7 @@ export default function ReviewList({ targetId, targetType, isItemOwner = false }
                 await createReview(formData);
                 Alert.alert('Success', 'Review submitted.');
             }
-            
+
             setModalVisible(false);
             resetForm();
             loadReviews();
@@ -110,8 +110,8 @@ export default function ReviewList({ targetId, targetType, isItemOwner = false }
     const handleDelete = (id: string) => {
         Alert.alert('Delete Review', 'Are you sure you want to remove this review?', [
             { text: 'Cancel', style: 'cancel' },
-            { 
-                text: 'Delete', 
+            {
+                text: 'Delete',
                 style: 'destructive',
                 onPress: async () => {
                     try {
@@ -130,14 +130,14 @@ export default function ReviewList({ targetId, targetType, isItemOwner = false }
         setRating(review.rating.toString());
         setComment(review.comment);
         setImageUri(null);
-        
+
         if (review.reviewPhoto) {
             const baseUrl = API_URL.replace('/api', '');
             setExistingImage(`${baseUrl}${review.reviewPhoto}`);
         } else {
             setExistingImage(null);
         }
-        
+
         setModalVisible(true);
     };
 
@@ -153,11 +153,11 @@ export default function ReviewList({ targetId, targetType, isItemOwner = false }
         const stars = [];
         for (let i = 1; i <= 5; i++) {
             stars.push(
-                <Ionicons 
-                    key={i} 
-                    name={i <= ratingNum ? "star" : "star-outline"} 
-                    size={16} 
-                    color="#eab308" 
+                <Ionicons
+                    key={i}
+                    name={i <= ratingNum ? "star" : "star-outline"}
+                    size={16}
+                    color="#eab308"
                 />
             );
         }
@@ -184,7 +184,7 @@ export default function ReviewList({ targetId, targetType, isItemOwner = false }
                             {renderStars(item.rating)}
                         </View>
                     </View>
-                    
+
                     {(isAuthor || isAdmin || isItemOwner) && (
                         <View style={styles.actionRow}>
                             {isAuthor && (
@@ -250,8 +250,8 @@ export default function ReviewList({ targetId, targetType, isItemOwner = false }
                         <Text style={styles.label}>Rating (1-5)</Text>
                         <View style={styles.ratingSelector}>
                             {[1,2,3,4,5].map(num => (
-                                <TouchableOpacity 
-                                    key={num} 
+                                <TouchableOpacity
+                                    key={num}
                                     onPress={() => setRating(num.toString())}
                                     style={[styles.ratingBtn, rating === num.toString() && styles.ratingBtnActive]}
                                 >
@@ -263,10 +263,10 @@ export default function ReviewList({ targetId, targetType, isItemOwner = false }
                         </View>
 
                         <Text style={styles.label}>Your Feedback</Text>
-                        <TextInput 
-                            style={[styles.input, styles.textArea]} 
-                            value={comment} 
-                            onChangeText={setComment} 
+                        <TextInput
+                            style={[styles.input, styles.textArea]}
+                            value={comment}
+                            onChangeText={setComment}
                             placeholder="Share details of your experience..."
                             multiline
                             numberOfLines={4}
@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
     authorInitials: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
     authorName: { fontSize: 14, fontWeight: '600', color: '#334155' },
     starsContainer: { flexDirection: 'row', marginTop: 2 },
-    
+
     actionRow: { flexDirection: 'row', gap: 10 },
     actionBtn: { padding: 4 },
 
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
     modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
     modalTitle: { fontSize: 20, fontWeight: 'bold', color: '#333' },
     label: { fontSize: 14, fontWeight: '600', color: '#555', marginBottom: 8, marginTop: 12 },
-    
+
     ratingSelector: { flexDirection: 'row', gap: 8, marginBottom: 8 },
     ratingBtn: { flex: 1, paddingVertical: 10, borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 8, alignItems: 'center' },
     ratingBtnActive: { backgroundColor: '#344e41', borderColor: '#344e41' },
@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
 
     input: { backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 10, padding: 12, fontSize: 15 },
     textArea: { height: 100, textAlignVertical: 'top' },
-    
+
     imagePicker: { height: 120, backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0', borderStyle: 'dashed', borderRadius: 10, justifyContent: 'center', alignItems: 'center', overflow: 'hidden' },
     imagePickerInner: { alignItems: 'center' },
     imagePickerText: { color: '#888', fontSize: 12, marginTop: 8 },
