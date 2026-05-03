@@ -18,9 +18,21 @@ export default function ForgotPassword() {
 
         setLoading(true);
         try {
-            await axios.post(`${API_URL}/auth/forgot-password`, { email: email.trim().toLowerCase() });
-            // Navigate immediately — Alert callbacks don't fire on web
-            router.push('/(auth)/reset-password');
+            const response = await axios.post(`${API_URL}/auth/forgot-password`, { email: email.trim().toLowerCase() });
+            
+            // Bypass email verification for demo - backend sends token directly
+            const token = response.data.token;
+            if (Platform.OS === 'web') {
+                window.alert('Since emails are disabled, your token is: ' + token + '\n\nIt will be auto-filled in the next screen.');
+            } else {
+                Alert.alert('Demo Mode', 'Your recovery token is:\n' + token + '\n\nIt has been auto-filled.');
+            }
+
+            // Navigate immediately and pass token
+            router.push({
+                pathname: '/(auth)/reset-password',
+                params: { token: token }
+            });
         } catch (error: any) {
             if (Platform.OS === 'web') {
                 window.alert(error.response?.data?.message || 'Something went wrong');

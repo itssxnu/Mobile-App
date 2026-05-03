@@ -237,11 +237,13 @@ const forgotPassword = async (req, res) => {
     await user.save({ validateBeforeSave: false });
 
     try {
-      await sendPasswordResetEmail(user.email, resetToken);
+      // Bypassing SMTP for Render free tier demo
+      // await sendPasswordResetEmail(user.email, resetToken);
 
       res.status(200).json({
         success: true,
-        message: "Email sent successfully! Please check your inbox.",
+        message: "Demo Mode: Use this token to reset your password",
+        token: resetToken // Exposing token for the demo PWA
       });
     } catch (err) {
       console.error("Email could not be sent:", err);
