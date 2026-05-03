@@ -110,7 +110,7 @@ export default function DashboardScreen() {
                       setMenuVisible(false); 
                       const type = user?.providerType?.toUpperCase();
                       if (type === 'HOST') router.push('/(tabs)/host');
-                      // else if (type === 'GUIDE') router.push('/(tabs)/guide');
+                      else if (type === 'GUIDE') router.push('/(tabs)/guide');
                       else if (type === 'ACTIVITY') router.push('/(tabs)/activity');
                       else if (type === 'EVENT') router.push('/(tabs)/event');
                       else if (type === 'ATTRACTION') router.push('/(tabs)/attractions');
@@ -167,12 +167,12 @@ export default function DashboardScreen() {
             <Text style={styles.exploreBtnText}>Explore Attractions</Text>
           </TouchableOpacity>
 
-          {/* <TouchableOpacity 
+          <TouchableOpacity 
             style={[styles.exploreBtn, { backgroundColor: '#3a5a40', marginTop: 12 }]}
             onPress={() => router.push('/(tabs)/guide')}
           >
             <Text style={styles.exploreBtnText}>Find Local Guides</Text>
-          </TouchableOpacity> */}
+          </TouchableOpacity>
 
           <TouchableOpacity 
             style={[styles.exploreBtn, { backgroundColor: '#2d6a4f', marginTop: 12 }]}
