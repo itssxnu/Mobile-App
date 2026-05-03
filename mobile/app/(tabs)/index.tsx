@@ -112,7 +112,7 @@ export default function DashboardScreen() {
                       if (type === 'HOST') router.push('/(tabs)/host');
                       // else if (type === 'GUIDE') router.push('/(tabs)/guide');
                       else if (type === 'ACTIVITY') router.push('/(tabs)/activity');
-                      // else if (type === 'EVENT') router.push('/(tabs)/event');
+                      else if (type === 'EVENT') router.push('/(tabs)/event');
                       else if (type === 'ATTRACTION') router.push('/(tabs)/attractions');
                   }}>
                     <View style={[styles.menuIconBox, { backgroundColor: '#eef4ed' }]}>
@@ -181,12 +181,12 @@ export default function DashboardScreen() {
             <Text style={styles.exploreBtnText}>Explore Homestays</Text>
           </TouchableOpacity>
 
-          {/* <TouchableOpacity 
+          <TouchableOpacity 
             style={[styles.exploreBtn, { backgroundColor: '#1e40af', marginTop: 12 }]}
             onPress={() => router.push('/(tabs)/event')}
           >
             <Text style={styles.exploreBtnText}>Explore Events</Text>
-          </TouchableOpacity> */}
+          </TouchableOpacity>
         </View>
 
         <TouchableOpacity 

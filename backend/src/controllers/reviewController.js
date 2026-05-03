@@ -81,9 +81,9 @@ const deleteReview = async (req, res) => {
             switch(review.targetType) {
                 case 'Activity': TargetModel = require('../models/Activity'); break;
                 case 'Attraction': TargetModel = require('../models/Attraction'); break;
-                // case 'Guide': TargetModel = require('../models/Guide'); break;
+                case 'Guide': TargetModel = require('../models/Guide'); break;
                 case 'Homestay': TargetModel = require('../models/Homestay'); break;
-                // case 'Event': TargetModel = require('../models/Event'); break;
+                case 'Event': TargetModel = require('../models/Event'); break;
             }
             if (TargetModel) {
                 const targetItem = await TargetModel.findById(review.targetId);
