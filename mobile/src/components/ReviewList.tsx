@@ -220,7 +220,7 @@ export default function ReviewList({ targetId, targetType, isItemOwner = false }
         <View style={styles.container}>
             <View style={styles.headerRow}>
                 <Text style={styles.title}>Community Reviews ({reviews.length})</Text>
-                {currentUser && currentUser?.role?.toUpperCase() === 'USER' && (
+                {currentUser && !isItemOwner && (
                     <TouchableOpacity style={styles.writeButton} onPress={() => { resetForm(); setModalVisible(true); }}>
                         <Ionicons name="create-outline" size={18} color="#fff" />
                         <Text style={styles.writeButtonText}>Write a Review</Text>
