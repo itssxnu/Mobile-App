@@ -41,6 +41,7 @@ export default function RegisterScreen() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+  const [registerError, setRegisterError] = useState<string | null>(null);
 
   const pickImage = async () => {
     const { granted } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -104,19 +105,20 @@ export default function RegisterScreen() {
     try {
       const response = await registerUser(formData);
 
-      // Navigate on any successful response — unverified flag may vary
-      if (response.unverified || response.success || response.email) {
-        router.push({ pathname: '/(auth)/otp-verify', params: { email: email.trim().toLowerCase() } });
-      } else {
-        // Unexpected success shape — still navigate
-        router.push({ pathname: '/(auth)/otp-verify', params: { email: email.trim().toLowerCase() } });
-      }
+      // Any 2xx response means user was created — navigate to OTP page
+      router.push({ pathname: '/(auth)/otp-verify', params: { email: email.trim().toLowerCase() } });
+
     } catch (err: any) {
+      const statusCode = err.response?.status;
       const msg = err.response?.data?.message || err.message || 'Registration failed. Please try again.';
-      if (Platform.OS === 'web') {
-        window.alert(msg);
+      
+      // If backend says email failed (500) but user may have been created,
+      // still navigate to OTP page with a warning
+      if (statusCode === 500 && msg.toLowerCase().includes('email')) {
+        router.push({ pathname: '/(auth)/otp-verify', params: { email: email.trim().toLowerCase() } });
       } else {
-        Alert.alert('Registration Failed', msg);
+        // Show error in the UI — window.alert can be suppressed on some browsers
+        setRegisterError(msg);
       }
     } finally {
       setLoading(false);
@@ -152,7 +154,13 @@ export default function RegisterScreen() {
           <Field label="Password" value={password} onChangeText={setPassword} placeholder="Min. 6 characters" secure error={errors.password} onClearError={() => setErrors(prev => ({ ...prev, password: undefined }))} />
           <Field label="Confirm Password" value={confirmPassword} onChangeText={setConfirmPassword} placeholder="Re-enter password" secure error={errors.confirmPassword} onClearError={() => setErrors(prev => ({ ...prev, confirmPassword: undefined }))} />
 
-          <TouchableOpacity style={[styles.button, loading && styles.buttonDisabled]} onPress={handleRegister} disabled={loading}>
+          {registerError ? (
+            <View style={styles.errorBanner}>
+              <Text style={styles.errorBannerText}>⚠️ {registerError}</Text>
+            </View>
+          ) : null}
+
+          <TouchableOpacity style={[styles.button, loading && styles.buttonDisabled]} onPress={() => { setRegisterError(null); handleRegister(); }} disabled={loading}>
             {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Create Account</Text>}
           </TouchableOpacity>
 
@@ -195,4 +203,6 @@ const styles = StyleSheet.create({
   footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 24, alignItems: 'center' },
   footerText: { fontSize: 14, color: '#588157' },
   footerLink: { fontSize: 14, color: '#3a5a40', fontWeight: '700', marginLeft: 4 },
+  errorBanner: { backgroundColor: '#FEF2F2', borderWidth: 1, borderColor: '#FCA5A5', borderRadius: 12, padding: 12, marginTop: 8, marginBottom: 4 },
+  errorBannerText: { color: '#B91C1C', fontSize: 13, fontWeight: '600', textAlign: 'center' },
 });
