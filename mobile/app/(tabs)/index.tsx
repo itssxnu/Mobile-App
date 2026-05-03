@@ -147,70 +147,112 @@ export default function DashboardScreen() {
       </Modal>
 
       {/* ── Main Feed ── */}
-      <ScrollView contentContainerStyle={styles.feedContent}>
-        <View style={styles.placeholderCard}>
-          <Text style={styles.emoji}>🌍</Text>
-          <Text style={styles.title}>Welcome to HD Resorts</Text>
-          <Text style={styles.sub}>
-            This is the main dashboard! This is where people can see all the awesome homestays, activities, guides, and events that providers have published.
-          </Text>
-          <TouchableOpacity 
-            style={styles.exploreBtn}
-            onPress={() => router.push('/(tabs)/activity')}
-          >
-            <Text style={styles.exploreBtnText}>Explore Activities</Text>
+      <ScrollView contentContainerStyle={styles.feedContent} showsVerticalScrollIndicator={false}>
+        
+        {/* Featured Section */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Explore by Category</Text>
+          <Text style={styles.sectionSubtitle}>Swipe to discover what HD Resorts has to offer</Text>
+        </View>
+
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false} 
+          contentContainerStyle={styles.carouselContainer}
+          decelerationRate="fast"
+          snapToInterval={280 + 16} // card width + gap
+        >
+          {CATEGORIES.map((cat, index) => (
+            <TouchableOpacity 
+              key={index} 
+              style={styles.carouselCard} 
+              onPress={() => router.push(cat.route as any)}
+              activeOpacity={0.9}
+            >
+              <Image source={{ uri: cat.img }} style={styles.cardImage} />
+              <View style={styles.cardOverlay}>
+                <View style={[styles.iconBadge, { backgroundColor: cat.color }]}>
+                  <Ionicons name={cat.icon as any} size={20} color="#fff" />
+                </View>
+                <View style={styles.cardTextContainer}>
+                  <Text style={styles.cardTitle}>{cat.title}</Text>
+                  <Text style={styles.cardSubtitle}>{cat.subtitle}</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
+        {/* Quick Links Section */}
+        <View style={[styles.sectionHeader, { marginTop: 32 }]}>
+          <Text style={styles.sectionTitle}>Quick Actions</Text>
+        </View>
+
+        <View style={styles.quickActionsGrid}>
+          <TouchableOpacity style={styles.quickActionBox} onPress={() => router.push('/(tabs)/attractions')}>
+            <View style={[styles.quickActionIcon, { backgroundColor: '#eef4ed' }]}>
+              <Ionicons name="sparkles" size={24} color="#3a5a40" />
+            </View>
+            <Text style={styles.quickActionText}>Hidden Gems</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={[styles.exploreBtn, { backgroundColor: '#588157', marginTop: 12 }]}
-            onPress={() => router.push('/(tabs)/attractions')}
-          >
-            <Text style={styles.exploreBtnText}>Explore Attractions</Text>
+          <TouchableOpacity style={styles.quickActionBox} onPress={() => router.push('/(tabs)/host')}>
+            <View style={[styles.quickActionIcon, { backgroundColor: '#fef3c7' }]}>
+              <Ionicons name="bed" size={24} color="#d97706" />
+            </View>
+            <Text style={styles.quickActionText}>Find Stays</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={[styles.exploreBtn, { backgroundColor: '#3a5a40', marginTop: 12 }]}
-            onPress={() => router.push('/(tabs)/guide')}
-          >
-            <Text style={styles.exploreBtnText}>Find Local Guides</Text>
+          <TouchableOpacity style={styles.quickActionBox} onPress={() => router.push('/(tabs)/event')}>
+            <View style={[styles.quickActionIcon, { backgroundColor: '#fee2e2' }]}>
+              <Ionicons name="ticket" size={24} color="#dc2626" />
+            </View>
+            <Text style={styles.quickActionText}>Book Events</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={[styles.exploreBtn, { backgroundColor: '#2d6a4f', marginTop: 12 }]}
-            onPress={() => router.push('/(tabs)/host')}
-          >
-            <Text style={styles.exploreBtnText}>Explore Homestays</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[styles.exploreBtn, { backgroundColor: '#1e40af', marginTop: 12 }]}
-            onPress={() => router.push('/(tabs)/event')}
-          >
-            <Text style={styles.exploreBtnText}>Explore Events</Text>
+          <TouchableOpacity style={styles.quickActionBox} onPress={() => router.push('/(tabs)/activity')}>
+            <View style={[styles.quickActionIcon, { backgroundColor: '#e0e7ff' }]}>
+              <Ionicons name="bicycle" size={24} color="#4f46e5" />
+            </View>
+            <Text style={styles.quickActionText}>Activities</Text>
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity 
-          style={[styles.placeholderCard, { marginTop: 16, backgroundColor: '#eef4ed' }]}
-          onPress={() => router.push('/(tabs)/attractions')}
-        >
-          <Text style={styles.emoji}>🏞️</Text>
-          <Text style={styles.title}>Hidden Gems</Text>
-          <Text style={styles.sub}>
-            Discover and share beautiful attractions, waterfalls, and viewpoints!
-          </Text>
-        </TouchableOpacity>
+        {/* Become a Provider Banner */}
+        {user?.role?.toUpperCase() === 'USER' && (
+          <TouchableOpacity 
+            style={styles.providerBanner}
+            onPress={() => router.push('/(tabs)/upgrade')}
+            activeOpacity={0.9}
+          >
+            <View style={styles.providerBannerContent}>
+              <Text style={styles.providerBannerTitle}>Become a Provider</Text>
+              <Text style={styles.providerBannerSub}>Start earning by hosting stays, guiding tours, or creating events!</Text>
+            </View>
+            <View style={styles.providerBannerIcon}>
+              <Ionicons name="arrow-forward" size={24} color="#fff" />
+            </View>
+          </TouchableOpacity>
+        )}
+
       </ScrollView>
-      
     </View>
   );
 }
 
+const CATEGORIES = [
+  { id: 'homestays', title: 'Homestays', subtitle: 'Cozy places to stay', icon: 'home', color: '#d4a373', route: '/(tabs)/host', img: 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?q=80&w=600&auto=format&fit=crop' },
+  { id: 'activities', title: 'Activities', subtitle: 'Thrilling experiences', icon: 'bicycle', color: '#3a5a40', route: '/(tabs)/activity', img: 'https://images.unsplash.com/photo-1541625602330-2277a4c46182?q=80&w=600&auto=format&fit=crop' },
+  { id: 'guides', title: 'Local Guides', subtitle: 'Discover secrets', icon: 'map', color: '#588157', route: '/(tabs)/guide', img: 'https://images.unsplash.com/photo-1533240332313-0db49b459ad6?q=80&w=600&auto=format&fit=crop' },
+  { id: 'events', title: 'Events', subtitle: 'Join the party', icon: 'calendar', color: '#bc4749', route: '/(tabs)/event', img: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=600&auto=format&fit=crop' },
+  { id: 'attractions', title: 'Attractions', subtitle: 'Must-see spots', icon: 'camera', color: '#1e40af', route: '/(tabs)/attractions', img: 'https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?q=80&w=600&auto=format&fit=crop' }
+];
+
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: '#dad7cd',
-    paddingTop: Platform.OS === 'ios' ? 50 : 20, // Avoid safe area
+    backgroundColor: '#f8f9fa',
+    paddingTop: Platform.OS === 'ios' ? 50 : 20,
   },
   
   // ── Header ──
@@ -220,133 +262,50 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 24,
     paddingVertical: 16,
+    backgroundColor: '#f8f9fa',
   },
-  welcomeArea: {
-    gap: 2,
-  },
-  greeting: {
-    fontSize: 14,
-    color: '#588157',
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  userName: {
-    fontSize: 24,
-    fontWeight: '900',
-    color: '#344e41',
-  },
-  avatarContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#ffffff',
-    borderWidth: 2,
-    borderColor: '#3a5a40',
-    justifyContent: 'center',
-    alignItems: 'center',
-    overflow: 'hidden',
-  },
-  avatarFallback: {
-    width: '100%',
-    height: '100%',
-    backgroundColor: '#3a5a40',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  avatarImage: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-  },
+  welcomeArea: { gap: 2 },
+  greeting: { fontSize: 13, color: '#64748b', fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1 },
+  userName: { fontSize: 26, fontWeight: '900', color: '#1e293b', letterSpacing: -0.5 },
+  avatarContainer: { width: 48, height: 48, borderRadius: 24, backgroundColor: '#ffffff', borderWidth: 2, borderColor: '#3a5a40', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' },
+  avatarFallback: { width: '100%', height: '100%', backgroundColor: '#e2e8f0', justifyContent: 'center', alignItems: 'center' },
+  avatarImage: { width: '100%', height: '100%', resizeMode: 'cover' },
 
   // ── Dropdown Modal ──
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.2)',
-  },
-  dropdownMenu: {
-    position: 'absolute',
-    top: Platform.OS === 'ios' ? 100 : 80,
-    right: 24,
-    width: 220,
-    backgroundColor: '#ffffff',
-    borderRadius: 16,
-    padding: 8,
-    borderWidth: 1,
-    borderColor: '#a3b18a',
-    shadowColor: '#344e41',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.1,
-    shadowRadius: 15,
-    elevation: 10,
-  },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-    gap: 12,
-    borderRadius: 12,
-  },
-  menuIconBox: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    backgroundColor: '#f1f5f9',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  menuText: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#344e41',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#e2e8f0',
-    marginVertical: 4,
-    marginHorizontal: 12,
-  },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.1)' },
+  dropdownMenu: { position: 'absolute', top: Platform.OS === 'ios' ? 100 : 80, right: 24, width: 230, backgroundColor: '#ffffff', borderRadius: 16, padding: 8, shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.1, shadowRadius: 20, elevation: 15 },
+  menuItem: { flexDirection: 'row', alignItems: 'center', padding: 12, gap: 12, borderRadius: 12 },
+  menuIconBox: { width: 36, height: 36, borderRadius: 10, backgroundColor: '#f1f5f9', justifyContent: 'center', alignItems: 'center' },
+  menuText: { fontSize: 15, fontWeight: '700', color: '#334155' },
+  divider: { height: 1, backgroundColor: '#f1f5f9', marginVertical: 4, marginHorizontal: 12 },
 
   // ── Feed Content ──
-  feedContent: {
-    padding: 24,
-    paddingTop: 8,
-  },
-  placeholderCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 20,
-    padding: 32,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#a3b18a',
-  },
-  emoji: { fontSize: 48, marginBottom: 16 },
-  title: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#344e41',
-    marginBottom: 8,
-  },
-  sub: {
-    fontSize: 15,
-    color: '#588157',
-    textAlign: 'center',
-    lineHeight: 22,
-    fontWeight: '500',
-  },
-  exploreBtn: {
-    marginTop: 20,
-    backgroundColor: '#344e41',
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    borderRadius: 12,
-    width: '100%',
-    alignItems: 'center',
-  },
-  exploreBtnText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: '700',
-  }
+  feedContent: { paddingBottom: 40 },
+  
+  sectionHeader: { paddingHorizontal: 24, marginBottom: 16 },
+  sectionTitle: { fontSize: 22, fontWeight: '800', color: '#1e293b' },
+  sectionSubtitle: { fontSize: 14, color: '#64748b', marginTop: 4 },
+
+  // ── Carousel ──
+  carouselContainer: { paddingHorizontal: 24, gap: 16 },
+  carouselCard: { width: 280, height: 380, borderRadius: 24, overflow: 'hidden', backgroundColor: '#e2e8f0', shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.15, shadowRadius: 12, elevation: 8 },
+  cardImage: { width: '100%', height: '100%', resizeMode: 'cover' },
+  cardOverlay: { position: 'absolute', bottom: 0, left: 0, right: 0, height: '60%', justifyContent: 'flex-end', padding: 20, backgroundColor: 'rgba(0,0,0,0.5)' },
+  iconBadge: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center', marginBottom: 12, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 4, shadowOffset: { width: 0, height: 2 } },
+  cardTextContainer: {},
+  cardTitle: { color: '#ffffff', fontSize: 24, fontWeight: '900', letterSpacing: -0.5, marginBottom: 4 },
+  cardSubtitle: { color: 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: '500' },
+
+  // ── Quick Actions Grid ──
+  quickActionsGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 24, gap: 12, justifyContent: 'space-between' },
+  quickActionBox: { width: '48%', backgroundColor: '#ffffff', borderRadius: 20, padding: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 3 },
+  quickActionIcon: { width: 48, height: 48, borderRadius: 16, justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
+  quickActionText: { fontSize: 15, fontWeight: '700', color: '#334155' },
+
+  // ── Provider Banner ──
+  providerBanner: { marginHorizontal: 24, marginTop: 32, backgroundColor: '#344e41', borderRadius: 20, padding: 24, flexDirection: 'row', alignItems: 'center', shadowColor: '#344e41', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 8 },
+  providerBannerContent: { flex: 1, paddingRight: 16 },
+  providerBannerTitle: { color: '#ffffff', fontSize: 20, fontWeight: '800', marginBottom: 6 },
+  providerBannerSub: { color: 'rgba(255,255,255,0.8)', fontSize: 13, lineHeight: 20 },
+  providerBannerIcon: { width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center' }
 });
