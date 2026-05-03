@@ -40,33 +40,50 @@ export default function UpgradeScreen() {
     const [selectedType, setSelectedType] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
 
+    const executeUpgrade = async () => {
+        setLoading(true);
+        try {
+            await upgradeAccount(selectedType);
+            // Navigate immediately — Alert callbacks don't fire on web
+            if (Platform.OS === 'web') {
+                window.alert("Success! Your account has been upgraded.");
+            } else {
+                Alert.alert("Success!", "Your account has been upgraded.");
+            }
+            router.replace('/(tabs)');
+        } catch (error: any) {
+            if (Platform.OS === 'web') {
+                window.alert(error.response?.data?.message || "Something went wrong.");
+            } else {
+                Alert.alert("Upgrade Failed", error.response?.data?.message || "Something went wrong.");
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleUpgrade = async () => {
         if (!selectedType) return;
 
-        Alert.alert(
-            "Confirm Upgrade",
-            "Are you sure you want to upgrade your account? This will unlock new tools and dashboards.",
-            [
-                { text: "Cancel", style: "cancel" },
-                {
-                    text: "Upgrade",
-                    style: "default",
-                    onPress: async () => {
-                        setLoading(true);
-                        try {
-                            await upgradeAccount(selectedType);
-                            Alert.alert("Success!", "Your account has been upgraded.", [
-                                { text: "Go to Dashboard", onPress: () => router.replace('/(tabs)') }
-                            ]);
-                        } catch (error: any) {
-                            Alert.alert("Upgrade Failed", error.response?.data?.message || "Something went wrong.");
-                        } finally {
-                            setLoading(false);
-                        }
+        if (Platform.OS === 'web') {
+            const confirmed = window.confirm("Are you sure you want to upgrade your account? This will unlock new tools and dashboards.");
+            if (confirmed) {
+                executeUpgrade();
+            }
+        } else {
+            Alert.alert(
+                "Confirm Upgrade",
+                "Are you sure you want to upgrade your account? This will unlock new tools and dashboards.",
+                [
+                    { text: "Cancel", style: "cancel" },
+                    {
+                        text: "Upgrade",
+                        style: "default",
+                        onPress: executeUpgrade
                     }
-                }
-            ]
-        );
+                ]
+            );
+        }
     };
 
     return (
