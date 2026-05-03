@@ -1,11 +1,11 @@
 import React, { useState, useCallback } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TouchableOpacity, 
-  Image, 
-  Modal, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Modal,
   TouchableWithoutFeedback,
   ScrollView,
   Platform
@@ -57,8 +57,8 @@ export default function DashboardScreen() {
           <Text style={styles.userName}>{user?.name || 'Explorer'}</Text>
         </View>
 
-        <TouchableOpacity 
-          style={styles.avatarContainer} 
+        <TouchableOpacity
+          style={styles.avatarContainer}
           onPress={() => setMenuVisible(true)}
           activeOpacity={0.8}
         >
@@ -83,10 +83,10 @@ export default function DashboardScreen() {
           <View style={styles.modalOverlay}>
             <TouchableWithoutFeedback>
               <View style={styles.dropdownMenu}>
-                
+
                 {/* Profile Item */}
-                <TouchableOpacity 
-                  style={styles.menuItem} 
+                <TouchableOpacity
+                  style={styles.menuItem}
                   onPress={() => {
                     setMenuVisible(false);
                     router.push('/profile');
@@ -107,14 +107,14 @@ export default function DashboardScreen() {
                     <Text style={styles.menuText}>Become a Provider</Text>
                   </TouchableOpacity>
                 ) : user?.role?.toUpperCase() === 'PROVIDER' ? (
-                  <TouchableOpacity style={styles.menuItem} onPress={() => { 
-                      setMenuVisible(false); 
-                      const type = user?.providerType?.toUpperCase();
-                      if (type === 'HOST') router.push('/(tabs)/host');
-                      else if (type === 'GUIDE') router.push('/(tabs)/guide');
-                      else if (type === 'ACTIVITY') router.push('/(tabs)/activity');
-                      else if (type === 'EVENT') router.push('/(tabs)/event');
-                      else if (type === 'ATTRACTION') router.push('/(tabs)/attractions');
+                  <TouchableOpacity style={styles.menuItem} onPress={() => {
+                    setMenuVisible(false);
+                    const type = user?.providerType?.toUpperCase();
+                    if (type === 'HOST') router.push('/(tabs)/host');
+                    else if (type === 'GUIDE') router.push('/(tabs)/guide');
+                    else if (type === 'ACTIVITY') router.push('/(tabs)/activity');
+                    else if (type === 'EVENT') router.push('/(tabs)/event');
+                    else if (type === 'ATTRACTION') router.push('/(tabs)/attractions');
                   }}>
                     <View style={[styles.menuIconBox, { backgroundColor: '#eef4ed' }]}>
                       <Ionicons name="bar-chart-outline" size={22} color="#3a5a40" />
@@ -148,24 +148,24 @@ export default function DashboardScreen() {
 
       {/* ── Main Feed ── */}
       <ScrollView contentContainerStyle={styles.feedContent} showsVerticalScrollIndicator={false}>
-        
+
         {/* Featured Section */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Explore by Category</Text>
           <Text style={styles.sectionSubtitle}>Swipe to discover what HD Resorts has to offer</Text>
         </View>
 
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false} 
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.carouselContainer}
           decelerationRate="fast"
           snapToInterval={280 + 16} // card width + gap
         >
           {CATEGORIES.map((cat, index) => (
-            <TouchableOpacity 
-              key={index} 
-              style={styles.carouselCard} 
+            <TouchableOpacity
+              key={index}
+              style={styles.carouselCard}
               onPress={() => router.push(cat.route as any)}
               activeOpacity={0.9}
             >
@@ -220,7 +220,7 @@ export default function DashboardScreen() {
 
         {/* Become a Provider Banner */}
         {user?.role?.toUpperCase() === 'USER' && (
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.providerBanner}
             onPress={() => router.push('/(tabs)/upgrade')}
             activeOpacity={0.9}
@@ -241,11 +241,11 @@ export default function DashboardScreen() {
 }
 
 const CATEGORIES = [
-  { id: 'homestays', title: 'Homestays', subtitle: 'Cozy places to stay', icon: 'home', color: '#d4a373', route: '/(tabs)/host', img: 'https://images.unsplash.com/photo-1574682735283-e1ec27e4e899?q=80&w=600&auto=format&fit=crop' },
-  { id: 'activities', title: 'Activities', subtitle: 'Thrilling experiences', icon: 'bicycle', color: '#3a5a40', route: '/(tabs)/activity', img: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?q=80&w=600&auto=format&fit=crop' },
-  { id: 'guides', title: 'Local Guides', subtitle: 'Discover secrets', icon: 'map', color: '#588157', route: '/(tabs)/guide', img: 'https://images.unsplash.com/photo-1533052455980-dfc79133a411?q=80&w=600&auto=format&fit=crop' },
-  { id: 'events', title: 'Events', subtitle: 'Join the party', icon: 'calendar', color: '#bc4749', route: '/(tabs)/event', img: 'https://images.unsplash.com/photo-1625736855118-2e5fbd2ce33a?q=80&w=600&auto=format&fit=crop' },
-  { id: 'attractions', title: 'Attractions', subtitle: 'Must-see spots', icon: 'camera', color: '#1e40af', route: '/(tabs)/attractions', img: 'https://images.unsplash.com/photo-1587595431973-160d0d94add1?q=80&w=600&auto=format&fit=crop' }
+  { id: 'homestays', title: 'Homestays', subtitle: 'Cozy places to stay', icon: 'home', color: '#d4a373', route: '/(tabs)/host', img: 'https://images.unsplash.com/photo-1527248647512-3a668e6dc10b?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },
+  { id: 'activities', title: 'Activities', subtitle: 'Thrilling experiences', icon: 'bicycle', color: '#3a5a40', route: '/(tabs)/activity', img: 'https://images.unsplash.com/photo-1776336885109-cf865af988d1?q=80&w=652&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },
+  { id: 'guides', title: 'Local Guides', subtitle: 'Discover secrets', icon: 'map', color: '#588157', route: '/(tabs)/guide', img: 'https://images.unsplash.com/photo-1720945489913-6c2b4ac12c94?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },
+  { id: 'events', title: 'Events', subtitle: 'Join the party', icon: 'calendar', color: '#bc4749', route: '/(tabs)/event', img: 'https://images.unsplash.com/photo-1566766188646-5d0310191714?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },
+  { id: 'attractions', title: 'Attractions', subtitle: 'Must-see spots', icon: 'camera', color: '#1e40af', route: '/(tabs)/attractions', img: 'https://images.unsplash.com/photo-1592905169881-eff95fe441ed?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' }
 ];
 
 const styles = StyleSheet.create({
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#dad7cd',
     paddingTop: Platform.OS === 'ios' ? 50 : 20,
   },
-  
+
   // ── Header ──
   header: {
     flexDirection: 'row',
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
 
   // ── Feed Content ──
   feedContent: { paddingBottom: 40 },
-  
+
   sectionHeader: { paddingHorizontal: 24, marginBottom: 16 },
   sectionTitle: { fontSize: 22, fontWeight: '800', color: '#344e41' },
   sectionSubtitle: { fontSize: 14, color: '#588157', marginTop: 4 },
