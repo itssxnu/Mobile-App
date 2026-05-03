@@ -68,15 +68,20 @@ export default function ProfileScreen() {
 
       // If profilePhoto is a local URI (not the one from the server), we upload it
       if (profilePhoto && !profilePhoto.startsWith('http')) {
-        const filename = profilePhoto.split('/').pop() || 'photo.jpg';
-        const match = /\.(\w+)$/.exec(filename);
-        const type = match ? `image/${match[1]}` : `image/jpeg`;
-
-        formData.append('profilePhoto', {
-          uri: Platform.OS === 'android' ? profilePhoto : profilePhoto.replace('file://', ''),
-          name: filename,
-          type: type,
-        } as any);
+        if (Platform.OS === 'web') {
+          const response = await fetch(profilePhoto);
+          const blob = await response.blob();
+          formData.append('profilePhoto', blob, 'photo.jpg');
+        } else {
+          const filename = profilePhoto.split('/').pop() || 'photo.jpg';
+          const match = /\.(\w+)$/.exec(filename);
+          const type = match ? `image/${match[1]}` : `image/jpeg`;
+          formData.append('profilePhoto', {
+            uri: Platform.OS === 'android' ? profilePhoto : profilePhoto.replace('file://', ''),
+            name: filename,
+            type: type,
+          } as any);
+        }
       }
 
       await updateProfile(formData);

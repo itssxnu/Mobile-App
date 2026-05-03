@@ -87,12 +87,18 @@ export default function GuidesScreen() {
             formData.append('phoneNumber', phoneNumber);
 
             if (imageUri) {
-                // @ts-ignore
-                formData.append('profileHeadshot', {
-                    uri: imageUri,
-                    name: 'profileHeadshot.jpg',
-                    type: 'image/jpeg'
-                });
+                if (Platform.OS === 'web') {
+                    const response = await fetch(imageUri);
+                    const blob = await response.blob();
+                    formData.append('profileHeadshot', blob, 'profileHeadshot.jpg');
+                } else {
+                    // @ts-ignore
+                    formData.append('profileHeadshot', {
+                        uri: imageUri,
+                        name: 'profileHeadshot.jpg',
+                        type: 'image/jpeg'
+                    });
+                }
             }
 
             if (editingGuideId) {
@@ -134,7 +140,7 @@ export default function GuidesScreen() {
 
         if (guide.profileHeadshot) {
             const baseUrl = API_URL.replace('/api', '');
-            setExistingImage(`${baseUrl}${guide.profileHeadshot}`);
+            setExistingImage(guide.profileHeadshot.startsWith('http') ? guide.profileHeadshot : `${baseUrl}${guide.profileHeadshot}`);
         } else {
             setExistingImage(null);
         }
@@ -183,7 +189,7 @@ export default function GuidesScreen() {
 
     const renderGuideItem = ({ item }: { item: any }) => {
         const baseUrl = API_URL.replace('/api', '');
-        const imgSource = item.profileHeadshot ? { uri: `${baseUrl}${item.profileHeadshot}` } : null;
+        const imgSource = item.profileHeadshot ? { uri: item.profileHeadshot.startsWith('http') ? item.profileHeadshot : `${baseUrl}${item.profileHeadshot}` } : null;
 
         const currentUserId = currentUser?.id || currentUser?._id;
         const isOwner = currentUser && (currentUserId === item.host?._id || userRole === 'ADMIN');

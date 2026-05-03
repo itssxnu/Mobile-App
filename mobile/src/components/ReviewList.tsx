@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-    View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, Image, ActivityIndicator, FlatList, Modal
+    View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, Image, ActivityIndicator, FlatList, Modal, Platform
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
@@ -81,12 +81,18 @@ export default function ReviewList({ targetId, targetType, isItemOwner = false }
             formData.append('comment', comment);
 
             if (imageUri) {
-                // @ts-ignore
-                formData.append('reviewPhoto', {
-                    uri: imageUri,
-                    name: 'reviewPhoto.jpg',
-                    type: 'image/jpeg'
-                });
+                if (Platform.OS === 'web') {
+                    const response = await fetch(imageUri);
+                    const blob = await response.blob();
+                    formData.append('reviewPhoto', blob, 'reviewPhoto.jpg');
+                } else {
+                    // @ts-ignore
+                    formData.append('reviewPhoto', {
+                        uri: imageUri,
+                        name: 'reviewPhoto.jpg',
+                        type: 'image/jpeg'
+                    });
+                }
             }
 
             if (editingReviewId) {

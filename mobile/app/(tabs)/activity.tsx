@@ -86,12 +86,18 @@ export default function ActivitiesScreen() {
             formData.append('category', category);
 
             if (imageUri) {
-                // @ts-ignore
-                formData.append('actionShot', {
-                    uri: imageUri,
-                    name: 'actionShot.jpg',
-                    type: 'image/jpeg'
-                });
+                if (Platform.OS === 'web') {
+                    const response = await fetch(imageUri);
+                    const blob = await response.blob();
+                    formData.append('actionShot', blob, 'actionShot.jpg');
+                } else {
+                    // @ts-ignore
+                    formData.append('actionShot', {
+                        uri: imageUri,
+                        name: 'actionShot.jpg',
+                        type: 'image/jpeg'
+                    });
+                }
             }
 
             if (editingActivityId) {

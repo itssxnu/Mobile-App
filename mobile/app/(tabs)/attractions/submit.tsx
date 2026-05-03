@@ -71,30 +71,39 @@ export default function SubmitAttraction() {
       formData.append("description", description.trim());
       formData.append("district", district.trim());
       formData.append("difficultyLevel", difficultyLevel);
-      formData.append("entryFee", entryFee ? Number(entryFee) : 0);
+      formData.append("entryFee", entryFee ? entryFee : "0");
 
-      const formatFile = (uri, index = "") => {
-        const filename = uri.split("/").pop() || `photo${index}.jpg`;
-        const match = /\.(\w+)$/.exec(filename);
-        const type = match ? `image/${match[1]}` : `image/jpeg`;
-        return {
-          uri: Platform.OS === "android" ? uri : uri.replace("file://", ""),
-          name: filename,
-          type: type,
-        };
+      const appendFile = async (fieldName: string, uri: string, index = "") => {
+        if (Platform.OS === "web") {
+          // On web, fetch the blob from the URI and append it
+          const response = await fetch(uri);
+          const blob = await response.blob();
+          const filename = `photo${index}.jpg`;
+          formData.append(fieldName, blob, filename);
+        } else {
+          // On mobile, use the RN-style object
+          const filename = uri.split("/").pop() || `photo${index}.jpg`;
+          const match = /\.(\w+)$/.exec(filename);
+          const type = match ? `image/${match[1]}` : `image/jpeg`;
+          formData.append(fieldName, {
+            uri: Platform.OS === "android" ? uri : uri.replace("file://", ""),
+            name: filename,
+            type: type,
+          } as any);
+        }
       };
 
-      formData.append("coverPhoto", formatFile(coverPhoto));
+      await appendFile("coverPhoto", coverPhoto);
 
-      additionalPhotos.forEach((uri, i) => {
-        formData.append("additionalPhotos", formatFile(uri, i));
-      });
+      for (let i = 0; i < additionalPhotos.length; i++) {
+        await appendFile("additionalPhotos", additionalPhotos[i], String(i));
+      }
 
       await createAttraction(formData);
       Alert.alert("Success", "Attraction submitted successfully!", [
         { text: "OK", onPress: () => router.back() },
       ]);
-    } catch (err) {
+    } catch (err: any) {
       Alert.alert("Submission Failed", err.response?.data?.message || "Something went wrong.");
     } finally {
       setLoading(false);

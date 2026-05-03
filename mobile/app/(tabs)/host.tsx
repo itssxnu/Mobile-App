@@ -89,12 +89,18 @@ export default function HomestaysScreen() {
             formData.append('hostContact', hostContact);
 
             if (imageUri) {
-                // @ts-ignore
-                formData.append('propertyCoverPhoto', {
-                    uri: imageUri,
-                    name: 'propertyCoverPhoto.jpg',
-                    type: 'image/jpeg'
-                });
+                if (Platform.OS === 'web') {
+                    const response = await fetch(imageUri);
+                    const blob = await response.blob();
+                    formData.append('propertyCoverPhoto', blob, 'propertyCoverPhoto.jpg');
+                } else {
+                    // @ts-ignore
+                    formData.append('propertyCoverPhoto', {
+                        uri: imageUri,
+                        name: 'propertyCoverPhoto.jpg',
+                        type: 'image/jpeg'
+                    });
+                }
             }
 
             if (editingHomestayId) {

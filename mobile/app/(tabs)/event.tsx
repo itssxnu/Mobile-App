@@ -85,12 +85,18 @@ export default function EventsScreen() {
             formData.append('description', description);
 
             if (imageUri) {
-                // @ts-ignore
-                formData.append('eventPoster', {
-                    uri: imageUri,
-                    name: 'eventPoster.jpg',
-                    type: 'image/jpeg'
-                });
+                if (Platform.OS === 'web') {
+                    const response = await fetch(imageUri);
+                    const blob = await response.blob();
+                    formData.append('eventPoster', blob, 'eventPoster.jpg');
+                } else {
+                    // @ts-ignore
+                    formData.append('eventPoster', {
+                        uri: imageUri,
+                        name: 'eventPoster.jpg',
+                        type: 'image/jpeg'
+                    });
+                }
             }
 
             if (editingEventId) {
