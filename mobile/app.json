@@ -23,7 +23,14 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "bundler": "metro",
+      "favicon": "./assets/images/favicon.png",
+      "name": "HD Resorts",
+      "shortName": "HD Resorts",
+      "themeColor": "#344e41",
+      "backgroundColor": "#dad7cd",
+      "display": "standalone",
+      "scope": "/"
     },
     "plugins": [
       "expo-router",
