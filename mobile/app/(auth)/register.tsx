@@ -70,6 +70,7 @@ export default function RegisterScreen() {
 
   const handleRegister = async () => {
     if (!validate()) return;
+    if (loading) return; // prevent double-submit
 
     setLoading(true);
 
@@ -81,9 +82,13 @@ export default function RegisterScreen() {
 
     if (profilePhoto) {
       if (Platform.OS === 'web') {
-        const response = await fetch(profilePhoto);
-        const blob = await response.blob();
-        formData.append('profilePhoto', blob, 'photo.jpg');
+        try {
+          const res = await fetch(profilePhoto);
+          const blob = await res.blob();
+          formData.append('profilePhoto', blob, 'photo.jpg');
+        } catch {
+          // If blob fetch fails, skip photo — don't block registration
+        }
       } else {
         const filename = profilePhoto.split('/').pop() || 'photo.jpg';
         const match = /\.(\w+)$/.exec(filename);
@@ -99,15 +104,19 @@ export default function RegisterScreen() {
     try {
       const response = await registerUser(formData);
 
-      if (response.unverified) {
-        // Navigate immediately — Alert callbacks don't fire on web
+      // Navigate on any successful response — unverified flag may vary
+      if (response.unverified || response.success || response.email) {
+        router.push({ pathname: '/(auth)/otp-verify', params: { email: email.trim().toLowerCase() } });
+      } else {
+        // Unexpected success shape — still navigate
         router.push({ pathname: '/(auth)/otp-verify', params: { email: email.trim().toLowerCase() } });
       }
     } catch (err: any) {
+      const msg = err.response?.data?.message || err.message || 'Registration failed. Please try again.';
       if (Platform.OS === 'web') {
-        window.alert(err.response?.data?.message || 'Registration failed. Please try again.');
+        window.alert(msg);
       } else {
-        Alert.alert('Registration Failed', err.response?.data?.message || 'Server error.');
+        Alert.alert('Registration Failed', msg);
       }
     } finally {
       setLoading(false);
