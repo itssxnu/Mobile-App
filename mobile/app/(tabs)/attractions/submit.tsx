@@ -100,11 +100,14 @@ export default function SubmitAttraction() {
       }
 
       await createAttraction(formData);
-      Alert.alert("Success", "Attraction submitted successfully!", [
-        { text: "OK", onPress: () => router.back() },
-      ]);
+      // Navigate immediately — Alert callbacks don't fire on web
+      router.back();
     } catch (err: any) {
-      Alert.alert("Submission Failed", err.response?.data?.message || "Something went wrong.");
+      if (Platform.OS === "web") {
+        window.alert(err.response?.data?.message || "Something went wrong. Please try again.");
+      } else {
+        Alert.alert("Submission Failed", err.response?.data?.message || "Something went wrong.");
+      }
     } finally {
       setLoading(false);
     }

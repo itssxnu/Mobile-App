@@ -81,29 +81,37 @@ export default function AttractionDetail() {
     }
   };
 
-  const handleDelete = () => {
-    Alert.alert(
-      "Delete Attraction",
-      "Are you sure you want to permanently delete this attraction?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              setLoading(true);
-              await deleteAttraction(id);
-              Alert.alert("Deleted", "Attraction has been removed.");
-              router.replace("/(tabs)/attractions");
-            } catch (error) {
-              Alert.alert("Delete Failed", error.response?.data?.message || "Could not delete.");
-              setLoading(false);
-            }
-          },
-        },
-      ]
-    );
+  const handleDelete = async () => {
+    // Alert.alert callbacks don't work reliably on web — use window.confirm instead
+    const confirmed =
+      Platform.OS === "web"
+        ? window.confirm("Are you sure you want to permanently delete this attraction?")
+        : await new Promise((resolve) =>
+            Alert.alert(
+              "Delete Attraction",
+              "Are you sure you want to permanently delete this attraction?",
+              [
+                { text: "Cancel", style: "cancel", onPress: () => resolve(false) },
+                { text: "Delete", style: "destructive", onPress: () => resolve(true) },
+              ]
+            )
+          );
+
+    if (!confirmed) return;
+
+    try {
+      setLoading(true);
+      await deleteAttraction(id);
+      // Navigate immediately — don't rely on Alert callback
+      router.replace("/(tabs)/attractions");
+    } catch (error: any) {
+      setLoading(false);
+      if (Platform.OS === "web") {
+        window.alert(error.response?.data?.message || "Could not delete.");
+      } else {
+        Alert.alert("Delete Failed", error.response?.data?.message || "Could not delete.");
+      }
+    }
   };
 
   if (loading || !attraction) {

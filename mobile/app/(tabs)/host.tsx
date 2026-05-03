@@ -151,23 +151,25 @@ export default function HomestaysScreen() {
         setModalVisible(true);
     };
 
-    const handleDelete = (id: string) => {
-        Alert.alert('Delete Property', 'Are you sure you want to delete this property?', [
-            { text: 'Cancel', style: 'cancel' },
-            { 
-                text: 'Delete', 
-                style: 'destructive',
-                onPress: async () => {
-                    try {
-                        await deleteHomestay(id);
-                        Alert.alert('Success', 'Property deleted.');
-                        loadData();
-                    } catch (error: any) {
-                        Alert.alert('Error', 'Failed to delete property.');
-                    }
-                }
-            }
-        ]);
+    const handleDelete = async (id: string) => {
+        const confirmed =
+            Platform.OS === 'web'
+                ? window.confirm('Are you sure you want to delete this property?')
+                : await new Promise<boolean>((resolve) =>
+                    Alert.alert('Delete Property', 'Are you sure you want to delete this property?', [
+                        { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
+                        { text: 'Delete', style: 'destructive', onPress: () => resolve(true) },
+                    ])
+                );
+
+        if (!confirmed) return;
+
+        try {
+            await deleteHomestay(id);
+            loadData();
+        } catch (error: any) {
+            Alert.alert('Error', 'Failed to delete property.');
+        }
     };
 
     const handleContact = (contactInfo: string) => {

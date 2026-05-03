@@ -147,23 +147,25 @@ export default function ActivitiesScreen() {
         setModalVisible(true);
     };
 
-    const handleDelete = (id: string) => {
-        Alert.alert('Delete Activity', 'Are you sure you want to delete this activity?', [
-            { text: 'Cancel', style: 'cancel' },
-            {
-                text: 'Delete',
-                style: 'destructive',
-                onPress: async () => {
-                    try {
-                        await deleteActivity(id);
-                        Alert.alert('Success', 'Activity deleted.');
-                        loadData();
-                    } catch (error: any) {
-                        Alert.alert('Error', 'Failed to delete activity.');
-                    }
-                }
-            }
-        ]);
+    const handleDelete = async (id: string) => {
+        const confirmed =
+            Platform.OS === 'web'
+                ? window.confirm('Are you sure you want to delete this activity?')
+                : await new Promise<boolean>((resolve) =>
+                    Alert.alert('Delete Activity', 'Are you sure you want to delete this activity?', [
+                        { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
+                        { text: 'Delete', style: 'destructive', onPress: () => resolve(true) },
+                    ])
+                );
+
+        if (!confirmed) return;
+
+        try {
+            await deleteActivity(id);
+            loadData();
+        } catch (error: any) {
+            Alert.alert('Error', 'Failed to delete activity.');
+        }
     };
 
     const resetForm = () => {

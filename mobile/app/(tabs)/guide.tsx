@@ -148,23 +148,25 @@ export default function GuidesScreen() {
         setModalVisible(true);
     };
 
-    const handleDelete = (id: string) => {
-        Alert.alert('Delete Guide Profile', 'Are you sure you want to delete this profile?', [
-            { text: 'Cancel', style: 'cancel' },
-            {
-                text: 'Delete',
-                style: 'destructive',
-                onPress: async () => {
-                    try {
-                        await deleteGuide(id);
-                        Alert.alert('Success', 'Profile deleted.');
-                        loadData();
-                    } catch (error: any) {
-                        Alert.alert('Error', 'Failed to delete profile.');
-                    }
-                }
-            }
-        ]);
+    const handleDelete = async (id: string) => {
+        const confirmed =
+            Platform.OS === 'web'
+                ? window.confirm('Are you sure you want to delete this profile?')
+                : await new Promise<boolean>((resolve) =>
+                    Alert.alert('Delete Guide Profile', 'Are you sure you want to delete this profile?', [
+                        { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
+                        { text: 'Delete', style: 'destructive', onPress: () => resolve(true) },
+                    ])
+                );
+
+        if (!confirmed) return;
+
+        try {
+            await deleteGuide(id);
+            loadData();
+        } catch (error: any) {
+            Alert.alert('Error', 'Failed to delete profile.');
+        }
     };
 
     const handleCall = (phone: string) => {

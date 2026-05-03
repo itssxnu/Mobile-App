@@ -153,23 +153,25 @@ export default function EventsScreen() {
         setModalVisible(true);
     };
 
-    const handleDelete = (id: string) => {
-        Alert.alert('Cancel Event', 'Are you sure you want to delete this event?', [
-            { text: 'No', style: 'cancel' },
-            { 
-                text: 'Delete', 
-                style: 'destructive',
-                onPress: async () => {
-                    try {
-                        await deleteEvent(id);
-                        Alert.alert('Success', 'Event deleted.');
-                        loadData();
-                    } catch (error: any) {
-                        Alert.alert('Error', 'Failed to delete event.');
-                    }
-                }
-            }
-        ]);
+    const handleDelete = async (id: string) => {
+        const confirmed =
+            Platform.OS === 'web'
+                ? window.confirm('Are you sure you want to delete this event?')
+                : await new Promise<boolean>((resolve) =>
+                    Alert.alert('Cancel Event', 'Are you sure you want to delete this event?', [
+                        { text: 'No', style: 'cancel', onPress: () => resolve(false) },
+                        { text: 'Delete', style: 'destructive', onPress: () => resolve(true) },
+                    ])
+                );
+
+        if (!confirmed) return;
+
+        try {
+            await deleteEvent(id);
+            loadData();
+        } catch (error: any) {
+            Alert.alert('Error', 'Failed to delete event.');
+        }
     };
 
     const resetForm = () => {
