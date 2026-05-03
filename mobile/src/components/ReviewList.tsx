@@ -113,22 +113,35 @@ export default function ReviewList({ targetId, targetType, isItemOwner = false }
         }
     };
 
-    const handleDelete = (id: string) => {
-        Alert.alert('Delete Review', 'Are you sure you want to remove this review?', [
-            { text: 'Cancel', style: 'cancel' },
-            {
-                text: 'Delete',
-                style: 'destructive',
-                onPress: async () => {
-                    try {
-                        await deleteReview(id);
-                        loadReviews();
-                    } catch (error: any) {
-                        Alert.alert('Error', 'Failed to delete review.');
-                    }
-                }
+    const executeDelete = async (id: string) => {
+        try {
+            await deleteReview(id);
+            loadReviews();
+        } catch (error: any) {
+            if (Platform.OS === 'web') {
+                window.alert('Failed to delete review.');
+            } else {
+                Alert.alert('Error', 'Failed to delete review.');
             }
-        ]);
+        }
+    };
+
+    const handleDelete = (id: string) => {
+        if (Platform.OS === 'web') {
+            const confirmed = window.confirm('Are you sure you want to remove this review?');
+            if (confirmed) {
+                executeDelete(id);
+            }
+        } else {
+            Alert.alert('Delete Review', 'Are you sure you want to remove this review?', [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Delete',
+                    style: 'destructive',
+                    onPress: () => executeDelete(id)
+                }
+            ]);
+        }
     };
 
     const openEditModal = (review: any) => {
