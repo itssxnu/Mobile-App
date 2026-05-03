@@ -145,7 +145,7 @@ export default function EventsScreen() {
         
         if (event.eventPoster) {
             const baseUrl = API_URL.replace('/api', '');
-            setExistingImage(`${baseUrl}${event.eventPoster}`);
+            setExistingImage(event.eventPoster.startsWith('http') ? event.eventPoster : `${baseUrl}${event.eventPoster}`);
         } else {
             setExistingImage(null);
         }
@@ -194,7 +194,7 @@ export default function EventsScreen() {
 
     const renderEventItem = ({ item }: { item: any }) => {
         const baseUrl = API_URL.replace('/api', '');
-        const imgSource = item.eventPoster ? { uri: `${baseUrl}${item.eventPoster}` } : null;
+        const imgSource = item.eventPoster ? { uri: item.eventPoster.startsWith('http') ? item.eventPoster : `${baseUrl}${item.eventPoster}` } : null;
 
         const currentUserId = currentUser?.id || currentUser?._id;
         const isOwner = currentUser && (currentUserId === item.host?._id || userRole === 'ADMIN');

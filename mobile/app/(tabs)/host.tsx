@@ -143,7 +143,7 @@ export default function HomestaysScreen() {
         
         if (homestay.propertyCoverPhoto) {
             const baseUrl = API_URL.replace('/api', '');
-            setExistingImage(`${baseUrl}${homestay.propertyCoverPhoto}`);
+            setExistingImage(homestay.propertyCoverPhoto.startsWith('http') ? homestay.propertyCoverPhoto : `${baseUrl}${homestay.propertyCoverPhoto}`);
         } else {
             setExistingImage(null);
         }
@@ -198,7 +198,7 @@ export default function HomestaysScreen() {
 
     const renderHomestayItem = ({ item }: { item: any }) => {
         const baseUrl = API_URL.replace('/api', '');
-        const imgSource = item.propertyCoverPhoto ? { uri: `${baseUrl}${item.propertyCoverPhoto}` } : null;
+        const imgSource = item.propertyCoverPhoto ? { uri: item.propertyCoverPhoto.startsWith('http') ? item.propertyCoverPhoto : `${baseUrl}${item.propertyCoverPhoto}` } : null;
 
         const currentUserId = currentUser?.id || currentUser?._id;
         const isOwner = currentUser && (currentUserId === item.host?._id || userRole === 'ADMIN');

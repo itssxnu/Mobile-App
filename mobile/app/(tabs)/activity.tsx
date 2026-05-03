@@ -139,7 +139,7 @@ export default function ActivitiesScreen() {
 
         if (activity.actionShot) {
             const baseUrl = API_URL.replace('/api', '');
-            setExistingImage(`${baseUrl}${activity.actionShot}`);
+            setExistingImage(activity.actionShot.startsWith('http') ? activity.actionShot : `${baseUrl}${activity.actionShot}`);
         } else {
             setExistingImage(null);
         }
@@ -185,7 +185,7 @@ export default function ActivitiesScreen() {
 
     const renderActivityItem = ({ item }: { item: any }) => {
         const baseUrl = API_URL.replace('/api', '');
-        const imgSource = item.actionShot ? { uri: `${baseUrl}${item.actionShot}` } : null;
+        const imgSource = item.actionShot ? { uri: item.actionShot.startsWith('http') ? item.actionShot : `${baseUrl}${item.actionShot}` } : null;
 
         // Determine if user owns this specific activity (or is an Admin)
         const currentUserId = currentUser?.id || currentUser?._id;
