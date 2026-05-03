@@ -241,17 +241,17 @@ export default function DashboardScreen() {
 }
 
 const CATEGORIES = [
-  { id: 'homestays', title: 'Homestays', subtitle: 'Cozy places to stay', icon: 'home', color: '#d4a373', route: '/(tabs)/host', img: 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?q=80&w=600&auto=format&fit=crop' },
-  { id: 'activities', title: 'Activities', subtitle: 'Thrilling experiences', icon: 'bicycle', color: '#3a5a40', route: '/(tabs)/activity', img: 'https://images.unsplash.com/photo-1541625602330-2277a4c46182?q=80&w=600&auto=format&fit=crop' },
-  { id: 'guides', title: 'Local Guides', subtitle: 'Discover secrets', icon: 'map', color: '#588157', route: '/(tabs)/guide', img: 'https://images.unsplash.com/photo-1533240332313-0db49b459ad6?q=80&w=600&auto=format&fit=crop' },
-  { id: 'events', title: 'Events', subtitle: 'Join the party', icon: 'calendar', color: '#bc4749', route: '/(tabs)/event', img: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=600&auto=format&fit=crop' },
-  { id: 'attractions', title: 'Attractions', subtitle: 'Must-see spots', icon: 'camera', color: '#1e40af', route: '/(tabs)/attractions', img: 'https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?q=80&w=600&auto=format&fit=crop' }
+  { id: 'homestays', title: 'Homestays', subtitle: 'Cozy places to stay', icon: 'home', color: '#d4a373', route: '/(tabs)/host', img: 'https://images.unsplash.com/photo-1574682735283-e1ec27e4e899?q=80&w=600&auto=format&fit=crop' },
+  { id: 'activities', title: 'Activities', subtitle: 'Thrilling experiences', icon: 'bicycle', color: '#3a5a40', route: '/(tabs)/activity', img: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?q=80&w=600&auto=format&fit=crop' },
+  { id: 'guides', title: 'Local Guides', subtitle: 'Discover secrets', icon: 'map', color: '#588157', route: '/(tabs)/guide', img: 'https://images.unsplash.com/photo-1533052455980-dfc79133a411?q=80&w=600&auto=format&fit=crop' },
+  { id: 'events', title: 'Events', subtitle: 'Join the party', icon: 'calendar', color: '#bc4749', route: '/(tabs)/event', img: 'https://images.unsplash.com/photo-1625736855118-2e5fbd2ce33a?q=80&w=600&auto=format&fit=crop' },
+  { id: 'attractions', title: 'Attractions', subtitle: 'Must-see spots', icon: 'camera', color: '#1e40af', route: '/(tabs)/attractions', img: 'https://images.unsplash.com/photo-1587595431973-160d0d94add1?q=80&w=600&auto=format&fit=crop' }
 ];
 
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#dad7cd',
     paddingTop: Platform.OS === 'ios' ? 50 : 20,
   },
   
@@ -262,11 +262,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 24,
     paddingVertical: 16,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#dad7cd',
   },
   welcomeArea: { gap: 2 },
-  greeting: { fontSize: 13, color: '#64748b', fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1 },
-  userName: { fontSize: 26, fontWeight: '900', color: '#1e293b', letterSpacing: -0.5 },
+  greeting: { fontSize: 13, color: '#588157', fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1 },
+  userName: { fontSize: 26, fontWeight: '900', color: '#344e41', letterSpacing: -0.5 },
   avatarContainer: { width: 48, height: 48, borderRadius: 24, backgroundColor: '#ffffff', borderWidth: 2, borderColor: '#3a5a40', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' },
   avatarFallback: { width: '100%', height: '100%', backgroundColor: '#e2e8f0', justifyContent: 'center', alignItems: 'center' },
   avatarImage: { width: '100%', height: '100%', resizeMode: 'cover' },
@@ -276,15 +276,15 @@ const styles = StyleSheet.create({
   dropdownMenu: { position: 'absolute', top: Platform.OS === 'ios' ? 100 : 80, right: 24, width: 230, backgroundColor: '#ffffff', borderRadius: 16, padding: 8, shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.1, shadowRadius: 20, elevation: 15 },
   menuItem: { flexDirection: 'row', alignItems: 'center', padding: 12, gap: 12, borderRadius: 12 },
   menuIconBox: { width: 36, height: 36, borderRadius: 10, backgroundColor: '#f1f5f9', justifyContent: 'center', alignItems: 'center' },
-  menuText: { fontSize: 15, fontWeight: '700', color: '#334155' },
+  menuText: { fontSize: 15, fontWeight: '700', color: '#344e41' },
   divider: { height: 1, backgroundColor: '#f1f5f9', marginVertical: 4, marginHorizontal: 12 },
 
   // ── Feed Content ──
   feedContent: { paddingBottom: 40 },
   
   sectionHeader: { paddingHorizontal: 24, marginBottom: 16 },
-  sectionTitle: { fontSize: 22, fontWeight: '800', color: '#1e293b' },
-  sectionSubtitle: { fontSize: 14, color: '#64748b', marginTop: 4 },
+  sectionTitle: { fontSize: 22, fontWeight: '800', color: '#344e41' },
+  sectionSubtitle: { fontSize: 14, color: '#588157', marginTop: 4 },
 
   // ── Carousel ──
   carouselContainer: { paddingHorizontal: 24, gap: 16 },
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
   quickActionsGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 24, gap: 12, justifyContent: 'space-between' },
   quickActionBox: { width: '48%', backgroundColor: '#ffffff', borderRadius: 20, padding: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 3 },
   quickActionIcon: { width: 48, height: 48, borderRadius: 16, justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
-  quickActionText: { fontSize: 15, fontWeight: '700', color: '#334155' },
+  quickActionText: { fontSize: 15, fontWeight: '700', color: '#344e41' },
 
   // ── Provider Banner ──
   providerBanner: { marginHorizontal: 24, marginTop: 32, backgroundColor: '#344e41', borderRadius: 20, padding: 24, flexDirection: 'row', alignItems: 'center', shadowColor: '#344e41', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 8 },
