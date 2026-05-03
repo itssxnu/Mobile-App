@@ -44,14 +44,22 @@ const registerUser = async (req, res) => {
       }
     }
 
-    const user = await User.create({ name, email, password, phone, profilePhoto, isVerified: false });
+    // NOTE: Email verification is disabled because Render free tier blocks outbound SMTP.
+    // Users are auto-verified on registration. To re-enable:
+    //   1. Set isVerified: false below
+    //   2. Uncomment the sendVerificationEmail block
+    //   3. Update frontend to handle 'unverified: true' response
+    const user = await User.create({
+      name, email, password, phone, profilePhoto,
+      isVerified: true   // Auto-verify — no OTP email required
+    });
+
+    /* --- RE-ENABLE EMAIL VERIFICATION WHEN SMTP IS AVAILABLE ---
     const otp = user.generateVerificationOtp();
     await user.save({ validateBeforeSave: false });
-
     try {
       await sendVerificationEmail(user.email, otp);
-
-      res.status(201).json({
+      return res.status(201).json({
         success: true,
         message: "Registration successful! Please verify your email.",
         email: user.email,
@@ -59,12 +67,27 @@ const registerUser = async (req, res) => {
       });
     } catch (err) {
       console.error("Email could not be sent:", err);
-      // Clean up the created user so they can retry registration
       await User.deleteOne({ _id: user._id });
-      return res.status(500).json({ 
-        message: "Registration failed: could not send verification email. Please check your email address and try again." 
-      });
+      return res.status(500).json({ message: "Registration failed: could not send verification email." });
     }
+    --- END EMAIL VERIFICATION BLOCK --- */
+
+    // Auto-verified: return token immediately so user can log in straight away
+    res.status(201).json({
+      success: true,
+      message: "Registration successful! You can now log in.",
+      token: generateToken(user._id),
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        providerType: user.providerType,
+        profilePhoto: user.profilePhoto,
+      },
+    });
+
   } catch (err) {
     if (err.name === "ValidationError") {
       const messages = Object.values(err.errors).map((e) => e.message);

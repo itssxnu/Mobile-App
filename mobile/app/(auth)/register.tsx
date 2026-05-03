@@ -105,21 +105,20 @@ export default function RegisterScreen() {
     try {
       const response = await registerUser(formData);
 
-      // Any 2xx response means user was created — navigate to OTP page
-      router.push({ pathname: '/(auth)/otp-verify', params: { email: email.trim().toLowerCase() } });
+      if (response.token) {
+        // Auto-verified: token returned — go straight to the app
+        router.replace('/(tabs)');
+      } else if (response.unverified || response.email) {
+        // OTP verification required (when email is re-enabled)
+        router.push({ pathname: '/(auth)/otp-verify', params: { email: email.trim().toLowerCase() } });
+      } else {
+        router.replace('/(tabs)');
+      }
 
     } catch (err: any) {
       const statusCode = err.response?.status;
       const msg = err.response?.data?.message || err.message || 'Registration failed. Please try again.';
-      
-      // If backend says email failed (500) but user may have been created,
-      // still navigate to OTP page with a warning
-      if (statusCode === 500 && msg.toLowerCase().includes('email')) {
-        router.push({ pathname: '/(auth)/otp-verify', params: { email: email.trim().toLowerCase() } });
-      } else {
-        // Show error in the UI — window.alert can be suppressed on some browsers
-        setRegisterError(msg);
-      }
+      setRegisterError(msg);
     } finally {
       setLoading(false);
     }
