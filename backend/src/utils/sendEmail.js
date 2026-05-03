@@ -1,16 +1,22 @@
 const nodemailer = require("nodemailer");
 
 const sendEmail = async (options) => {
-  // Create a transporter using Gmail SMTP
+  // Use explicit host + port 587 (STARTTLS) instead of port 465 (SSL)
+  // Render free tier blocks outbound IPv6 — force family:4 to use IPv4
   const transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,       // STARTTLS (upgraded after connection)
+    family: 4,           // Force IPv4 — Render blocks IPv6 outbound
     auth: {
       user: process.env.SMTP_EMAIL,
       pass: process.env.SMTP_PASSWORD,
     },
+    tls: {
+      rejectUnauthorized: false, // Allow self-signed certs if any
+    },
   });
 
-  // Define the email options
   const message = {
     from: `${process.env.FROM_NAME} <${process.env.SMTP_EMAIL}>`,
     to: options.email,
@@ -19,7 +25,6 @@ const sendEmail = async (options) => {
     html: options.html,
   };
 
-  // Send the email
   const info = await transporter.sendMail(message);
   console.log("Email sent: %s", info.messageId);
 };
