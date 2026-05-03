@@ -48,12 +48,19 @@ export default function DashboardScreen() {
     return null;
   };
 
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning,';
+    if (hour < 18) return 'Good Afternoon,';
+    return 'Good Evening,';
+  };
+
   return (
     <View style={styles.screen}>
       {/* ── Top Navigation Bar ── */}
       <View style={styles.header}>
         <View style={styles.welcomeArea}>
-          <Text style={styles.greeting}>Good Morning,</Text>
+          <Text style={styles.greeting}>{getGreeting()}</Text>
           <Text style={styles.userName}>{user?.name || 'Explorer'}</Text>
         </View>
 
