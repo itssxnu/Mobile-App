@@ -14,14 +14,6 @@ import { getToken } from '../src/services/authService';
 
 const { height } = Dimensions.get('window');
 
-const FEATURES = [
-  { icon: '🏡', label: 'Homestays' },
-  { icon: '🗺️', label: 'Attractions' },
-  { icon: '🧭', label: 'Guides' },
-  { icon: '🏄', label: 'Activities' },
-  { icon: '🎉', label: 'Events' },
-];
-
 const SLIDESHOW_IMAGES = [
   'https://plus.unsplash.com/premium_photo-1730145749791-28fc538d7203?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Sigiriya/Elephants
   'https://images.unsplash.com/photo-1574611122955-5baa61496637?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Train in Ella
@@ -118,16 +110,6 @@ export default function WelcomeScreen() {
           </Text>
         </View>
 
-        {/* Feature pills */}
-        <View style={styles.pillRow}>
-          {FEATURES.map((f) => (
-            <View key={f.label} style={styles.pill}>
-              <Text style={styles.pillIcon}>{f.icon}</Text>
-              <Text style={styles.pillLabel}>{f.label}</Text>
-            </View>
-          ))}
-        </View>
-
         {/* CTA Buttons */}
         <View style={styles.btnGroup}>
           <TouchableOpacity
@@ -219,32 +201,6 @@ const styles = StyleSheet.create({
     color: '#e2e8f0',
     lineHeight: 24,
     opacity: 0.9,
-  },
-
-  // ── Feature Pills ─────────────────────────────────
-  pillRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  pill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.4)',
-    borderRadius: 999,
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-  },
-  pillIcon: {
-    fontSize: 14,
-  },
-  pillLabel: {
-    fontSize: 14,
-    color: '#ffffff',
-    fontWeight: '600',
   },
 
   // ── Buttons ───────────────────────────────────────
