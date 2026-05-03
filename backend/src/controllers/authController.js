@@ -36,7 +36,12 @@ const registerUser = async (req, res) => {
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(409).json({ message: "An account with this email already exists." });
+      // If the existing user is unverified, delete and let them re-register
+      if (!existingUser.isVerified) {
+        await User.deleteOne({ _id: existingUser._id });
+      } else {
+        return res.status(409).json({ message: "An account with this email already exists." });
+      }
     }
 
     const user = await User.create({ name, email, password, phone, profilePhoto, isVerified: false });
@@ -54,7 +59,11 @@ const registerUser = async (req, res) => {
       });
     } catch (err) {
       console.error("Email could not be sent:", err);
-      return res.status(500).json({ message: "Registration succeeded but verification email failed to send." });
+      // Clean up the created user so they can retry registration
+      await User.deleteOne({ _id: user._id });
+      return res.status(500).json({ 
+        message: "Registration failed: could not send verification email. Please check your email address and try again." 
+      });
     }
   } catch (err) {
     if (err.name === "ValidationError") {
