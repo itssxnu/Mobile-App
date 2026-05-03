@@ -56,7 +56,7 @@ export default function UpgradeScreen() {
                         try {
                             await upgradeAccount(selectedType);
                             Alert.alert("Success!", "Your account has been upgraded.", [
-                                { text: "Go to Dashboard", onPress: () => router.replace('/(tabs)/') }
+                                { text: "Go to Dashboard", onPress: () => router.replace('/(tabs)') }
                             ]);
                         } catch (error: any) {
                             Alert.alert("Upgrade Failed", error.response?.data?.message || "Something went wrong.");

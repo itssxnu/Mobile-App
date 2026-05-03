@@ -66,7 +66,7 @@ export default function WelcomeScreen() {
       const token = await getToken();
       if (token) {
         // User is logged in, securely route to their dashboard
-        router.replace('/(tabs)/');
+        router.replace('/(tabs)');
       } else {
         // No session, require login
         router.push('/(auth)/login');
