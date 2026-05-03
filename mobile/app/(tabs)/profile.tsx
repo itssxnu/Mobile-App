@@ -103,27 +103,40 @@ export default function ProfileScreen() {
     router.replace('/(auth)/login');
   };
 
+  const executeDeleteAccount = async () => {
+    try {
+      await deleteAccount();
+      await logout();
+      router.replace('/(auth)/login');
+    } catch (err: any) {
+      if (Platform.OS === 'web') {
+        window.alert(err.response?.data?.message || 'Could not delete account.');
+      } else {
+        Alert.alert('Error', err.response?.data?.message || 'Could not delete account.');
+      }
+    }
+  };
+
   const handleDeleteAccount = () => {
-    Alert.alert(
-      'Delete Account',
-      'Are you sure you want to permanently delete your account? This action cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Delete', 
-          style: 'destructive', 
-          onPress: async () => {
-            try {
-              await deleteAccount();
-              await logout();
-              router.replace('/(auth)/login');
-            } catch (err: any) {
-              Alert.alert('Error', err.response?.data?.message || 'Could not delete account.');
-            }
+    if (Platform.OS === 'web') {
+      const confirmed = window.confirm('Are you sure you want to permanently delete your account? This action cannot be undone.');
+      if (confirmed) {
+        executeDeleteAccount();
+      }
+    } else {
+      Alert.alert(
+        'Delete Account',
+        'Are you sure you want to permanently delete your account? This action cannot be undone.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { 
+            text: 'Delete', 
+            style: 'destructive', 
+            onPress: executeDeleteAccount
           }
-        }
-      ]
-    );
+        ]
+      );
+    }
   };
 
   return (

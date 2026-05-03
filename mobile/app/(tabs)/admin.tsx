@@ -45,27 +45,44 @@ export default function AdminDashboard() {
         }
     };
 
+    const executeDelete = async (userId: string) => {
+        try {
+            await deleteUserById(userId);
+            if (Platform.OS === 'web') {
+                window.alert("User has been removed.");
+            } else {
+                Alert.alert("Deleted", "User has been removed.");
+            }
+            loadUsers();
+        } catch (error: any) {
+            if (Platform.OS === 'web') {
+                window.alert("Failed to delete user.");
+            } else {
+                Alert.alert("Error", "Failed to delete user.");
+            }
+        }
+    };
+
     const handleDelete = (userId: string) => {
-        Alert.alert(
-            "Delete User",
-            "Are you absolutely sure you want to permanently delete this user?",
-            [
-                { text: "Cancel", style: "cancel" },
-                { 
-                    text: "Delete", 
-                    style: "destructive",
-                    onPress: async () => {
-                        try {
-                            await deleteUserById(userId);
-                            Alert.alert("Deleted", "User has been removed.");
-                            loadUsers();
-                        } catch (error: any) {
-                            Alert.alert("Error", "Failed to delete user.");
-                        }
-                    } 
-                }
-            ]
-        );
+        if (Platform.OS === 'web') {
+            const confirmed = window.confirm("Are you absolutely sure you want to permanently delete this user?");
+            if (confirmed) {
+                executeDelete(userId);
+            }
+        } else {
+            Alert.alert(
+                "Delete User",
+                "Are you absolutely sure you want to permanently delete this user?",
+                [
+                    { text: "Cancel", style: "cancel" },
+                    { 
+                        text: "Delete", 
+                        style: "destructive",
+                        onPress: () => executeDelete(userId)
+                    }
+                ]
+            );
+        }
     };
 
     const renderItem = ({ item }: { item: any }) => (
