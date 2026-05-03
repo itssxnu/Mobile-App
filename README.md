@@ -18,7 +18,7 @@
 ![Last Commit](https://img.shields.io/github/last-commit/itssxnu/Mobile-App?style=flat-square&label=Last%20Commit)
 ![Languages Count](https://img.shields.io/github/languages/count/itssxnu/Mobile-App?style=flat-square&label=Languages)
 ![Top Language](https://img.shields.io/github/languages/top/itssxnu/Mobile-App?style=flat-square)
-<img src="https://img.shields.io/badge/TypeScript-61.5%25-blue?style=flat-square" />
+<img src="https://img.shields.io/badge/javascript-26.0%25-yellow?style=flat-square" />
 
 </div>
 
