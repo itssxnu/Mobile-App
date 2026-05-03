@@ -1,7 +1,7 @@
 import Constants from 'expo-constants';
 
-let API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://mobile-app-rh2v.onrender.com/api';
-let API_BASE_URL = API_URL.replace('/api', '');
+let API_URL = 'https://mobile-app-rh2v.onrender.com/api';
+let API_BASE_URL = 'https://mobile-app-rh2v.onrender.com';
 
 if (__DEV__) {
   const hostUri = Constants?.expoConfig?.hostUri;

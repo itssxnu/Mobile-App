@@ -79,11 +79,7 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       const response = await loginUser(email.trim().toLowerCase(), password);
-      Alert.alert(
-        '✅ Login Successful',
-        `Welcome back, ${response.user.name}!`,
-        [{ text: 'Continue', onPress: () => router.replace('/(tabs)') }]
-      );
+      router.replace('/(tabs)');
     } catch (err: any) {
       if (err.response?.data?.unverified) {
         Alert.alert(
