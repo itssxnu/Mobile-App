@@ -2,22 +2,10 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
-// Ensure upload directory exists
-const uploadDir = path.join(__dirname, '../uploads/attractions');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
+const { createCloudinaryStorage } = require('../config/cloudinaryConfig');
 
 // Configure storage
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadDir);
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, "attraction-" + uniqueSuffix + path.extname(file.originalname));
-  },
-});
+const storage = createCloudinaryStorage('attractions');
 
 // File filter
 const fileFilter = (req, file, cb) => {

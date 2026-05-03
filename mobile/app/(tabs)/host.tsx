@@ -363,7 +363,7 @@ export default function HomestaysScreen() {
                             <ScrollView showsVerticalScrollIndicator={false}>
                                 {selectedItem.propertyCoverPhoto && (
                                     <Image 
-                                        source={{ uri: `${API_URL.replace('/api', '')}${selectedItem.propertyCoverPhoto}` }} 
+                                        source={{ uri: selectedItem.propertyCoverPhoto.startsWith('http') ? selectedItem.propertyCoverPhoto : `${API_URL.replace('/api', '')}${selectedItem.propertyCoverPhoto}` }} 
                                         style={[styles.cardImage, { borderRadius: 12, marginBottom: 16 }]} 
                                     />
                                 )}

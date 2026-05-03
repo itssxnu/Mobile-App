@@ -42,7 +42,8 @@ export default function DashboardScreen() {
 
   const getProfileImageUrl = () => {
     if (user?.profilePhoto) {
-      return { uri: `${API_BASE_URL}${user.profilePhoto}` };
+      const url = user.profilePhoto.startsWith('http') ? user.profilePhoto : `${API_BASE_URL}${user.profilePhoto}`;
+      return { uri: url };
     }
     return null;
   };

@@ -17,7 +17,7 @@ const createReview = async (req, res) => {
         };
 
         if (req.file) {
-            reviewData.reviewPhoto = `/uploads/reviews/${req.file.filename}`;
+            reviewData.reviewPhoto = req.file.path;
         }
 
         const review = await Review.create(reviewData);
@@ -54,7 +54,7 @@ const updateReview = async (req, res) => {
         if (req.body.comment) review.comment = req.body.comment;
 
         if (req.file) {
-            review.reviewPhoto = `/uploads/reviews/${req.file.filename}`;
+            review.reviewPhoto = req.file.path;
         }
 
         const updatedReview = await review.save();

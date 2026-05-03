@@ -133,7 +133,7 @@ export default function ReviewList({ targetId, targetType, isItemOwner = false }
 
         if (review.reviewPhoto) {
             const baseUrl = API_URL.replace('/api', '');
-            setExistingImage(`${baseUrl}${review.reviewPhoto}`);
+            setExistingImage(review.reviewPhoto.startsWith('http') ? review.reviewPhoto : `${baseUrl}${review.reviewPhoto}`);
         } else {
             setExistingImage(null);
         }
@@ -204,7 +204,7 @@ export default function ReviewList({ targetId, targetType, isItemOwner = false }
                 <Text style={styles.commentText}>{item.comment}</Text>
 
                 {item.reviewPhoto && (
-                    <Image source={{ uri: `${baseUrl}${item.reviewPhoto}` }} style={styles.reviewImage} />
+                    <Image source={{ uri: item.reviewPhoto.startsWith('http') ? item.reviewPhoto : `${baseUrl}${item.reviewPhoto}` }} style={styles.reviewImage} />
                 )}
             </View>
         );

@@ -14,7 +14,7 @@ const createGuide = async (req, res) => {
         };
 
         if (req.file) {
-            guideData.profileHeadshot = `/uploads/guides/${req.file.filename}`;
+            guideData.profileHeadshot = req.file.path;
         }
 
         const guide = await Guide.create(guideData);
@@ -66,7 +66,7 @@ const updateGuide = async (req, res) => {
         if (req.body.vehicleType) guide.vehicleType = req.body.vehicleType;
 
         if (req.file) {
-            guide.profileHeadshot = `/uploads/guides/${req.file.filename}`;
+            guide.profileHeadshot = req.file.path;
         }
 
         const updatedGuide = await guide.save();

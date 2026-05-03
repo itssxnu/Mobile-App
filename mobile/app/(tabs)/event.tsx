@@ -346,7 +346,7 @@ export default function EventsScreen() {
                             <ScrollView showsVerticalScrollIndicator={false}>
                                 {selectedItem.eventPoster && (
                                     <Image 
-                                        source={{ uri: `${API_URL.replace('/api', '')}${selectedItem.eventPoster}` }} 
+                                        source={{ uri: selectedItem.eventPoster.startsWith('http') ? selectedItem.eventPoster : `${API_URL.replace('/api', '')}${selectedItem.eventPoster}` }} 
                                         style={[styles.cardImage, { borderRadius: 12, marginBottom: 16 }]} 
                                     />
                                 )}

@@ -332,7 +332,7 @@ export default function ActivitiesScreen() {
                             <ScrollView showsVerticalScrollIndicator={false}>
                                 {selectedItem.actionShot && (
                                     <Image
-                                        source={{ uri: `${API_URL.replace('/api', '')}${selectedItem.actionShot}` }}
+                                        source={{ uri: selectedItem.actionShot.startsWith('http') ? selectedItem.actionShot : `${API_URL.replace('/api', '')}${selectedItem.actionShot}` }}
                                         style={[styles.cardImage, { borderRadius: 12, marginBottom: 16 }]}
                                     />
                                 )}

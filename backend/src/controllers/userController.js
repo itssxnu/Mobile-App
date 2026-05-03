@@ -1,6 +1,14 @@
 const User = require("../models/User");
-const path = require("path");
-const fs = require("fs");
+const { cloudinary } = require('../config/cloudinaryConfig');
+
+// Helper to extract Cloudinary public_id from a URL
+const getPublicId = (url) => {
+  if (!url || !url.includes('cloudinary')) return null;
+  const parts = url.split('/');
+  const filename = parts.pop().split('.')[0];
+  const folder = parts.slice(parts.indexOf('upload') + 2).join('/');
+  return folder ? `${folder}/${filename}` : filename;
+};
 
 // Get current user profile
 const getMe = async (req, res) => {
@@ -27,15 +35,13 @@ const updateMe = async (req, res) => {
     
     // Handle profile photo upload
     if (req.file) {
-      // Delete old photo if exists
+      // Delete old photo from Cloudinary if exists
       const oldUser = await User.findById(req.user.id);
       if (oldUser.profilePhoto) {
-        const oldPhotoPath = path.join(__dirname, "../uploads/profiles/", path.basename(oldUser.profilePhoto));
-        if (fs.existsSync(oldPhotoPath)) {
-          fs.unlinkSync(oldPhotoPath);
-        }
+        const publicId = getPublicId(oldUser.profilePhoto);
+        if (publicId) await cloudinary.uploader.destroy(publicId).catch(() => {});
       }
-      updates.profilePhoto = `/uploads/profiles/${req.file.filename}`;
+      updates.profilePhoto = req.file.path;
     }
     
     const updatedUser = await User.findByIdAndUpdate(
@@ -56,10 +62,8 @@ const deleteProfilePhoto = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
     if (user.profilePhoto) {
-      const photoPath = path.join(__dirname, "../uploads/profiles/", path.basename(user.profilePhoto));
-      if (fs.existsSync(photoPath)) {
-        fs.unlinkSync(photoPath);
-      }
+      const publicId = getPublicId(user.profilePhoto);
+      if (publicId) await cloudinary.uploader.destroy(publicId).catch(() => {});
       user.profilePhoto = null;
       await user.save();
     }
@@ -78,12 +82,10 @@ const deleteAccount = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Delete profile photo from disk if it exists
+    // Delete profile photo from Cloudinary if it exists
     if (user.profilePhoto) {
-      const photoPath = path.join(__dirname, "../uploads/profiles/", path.basename(user.profilePhoto));
-      if (fs.existsSync(photoPath)) {
-        fs.unlinkSync(photoPath);
-      }
+      const publicId = getPublicId(user.profilePhoto);
+      if (publicId) await cloudinary.uploader.destroy(publicId).catch(() => {});
     }
 
     await User.findByIdAndDelete(req.user.id);
@@ -207,12 +209,10 @@ const deleteUserById = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Delete profile photo from disk if it exists
+    // Delete profile photo from Cloudinary if it exists
     if (user.profilePhoto) {
-      const photoPath = path.join(__dirname, "../uploads/profiles/", path.basename(user.profilePhoto));
-      if (fs.existsSync(photoPath)) {
-        fs.unlinkSync(photoPath);
-      }
+      const publicId = getPublicId(user.profilePhoto);
+      if (publicId) await cloudinary.uploader.destroy(publicId).catch(() => {});
     }
 
     await User.findByIdAndDelete(req.params.id);

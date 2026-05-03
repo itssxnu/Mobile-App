@@ -13,7 +13,7 @@ const createEvent = async (req, res) => {
         };
 
         if (req.file) {
-            eventData.eventPoster = `/uploads/events/${req.file.filename}`;
+            eventData.eventPoster = req.file.path;
         }
 
         const event = await Event.create(eventData);
@@ -64,7 +64,7 @@ const updateEvent = async (req, res) => {
         if (req.body.description) event.description = req.body.description;
 
         if (req.file) {
-            event.eventPoster = `/uploads/events/${req.file.filename}`;
+            event.eventPoster = req.file.path;
         }
 
         const updatedEvent = await event.save();

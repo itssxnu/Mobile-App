@@ -23,7 +23,7 @@ const registerUser = async (req, res) => {
 
     let profilePhoto = null;
     if (req.file) {
-      profilePhoto = `/uploads/profiles/${req.file.filename}`;
+      profilePhoto = req.file.path;
     }
 
     if (!name || !email || !password) {

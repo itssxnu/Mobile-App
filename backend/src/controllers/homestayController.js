@@ -15,7 +15,7 @@ const createHomestay = async (req, res) => {
         };
 
         if (req.file) {
-            homestayData.propertyCoverPhoto = `/uploads/homestays/${req.file.filename}`;
+            homestayData.propertyCoverPhoto = req.file.path;
         }
 
         const homestay = await Homestay.create(homestayData);
@@ -68,7 +68,7 @@ const updateHomestay = async (req, res) => {
         if (req.body.hostContact) homestay.hostContact = req.body.hostContact;
 
         if (req.file) {
-            homestay.propertyCoverPhoto = `/uploads/homestays/${req.file.filename}`;
+            homestay.propertyCoverPhoto = req.file.path;
         }
 
         const updatedHomestay = await homestay.save();

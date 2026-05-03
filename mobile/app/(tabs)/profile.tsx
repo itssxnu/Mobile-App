@@ -35,7 +35,7 @@ export default function ProfileScreen() {
         setName(data.name);
         setEmail(data.email);
         if (data.profilePhoto) {
-          setProfilePhoto(`${API_BASE_URL}${data.profilePhoto}`);
+          setProfilePhoto(data.profilePhoto.startsWith('http') ? data.profilePhoto : `${API_BASE_URL}${data.profilePhoto}`);
         }
       }
     };

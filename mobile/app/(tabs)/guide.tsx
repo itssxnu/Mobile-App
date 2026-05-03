@@ -346,7 +346,7 @@ export default function GuidesScreen() {
                                 <View style={{ alignItems: 'center', marginBottom: 20 }}>
                                     {selectedItem.profileHeadshot ? (
                                         <Image
-                                            source={{ uri: `${API_URL.replace('/api', '')}${selectedItem.profileHeadshot}` }}
+                                            source={{ uri: selectedItem.profileHeadshot.startsWith('http') ? selectedItem.profileHeadshot : `${API_URL.replace('/api', '')}${selectedItem.profileHeadshot}` }}
                                             style={{ width: 120, height: 120, borderRadius: 60 }}
                                         />
                                     ) : (

@@ -14,7 +14,7 @@ const createActivity = async (req, res) => {
         };
 
         if (req.file) {
-            activityData.actionShot = `/uploads/activities/${req.file.filename}`;
+            activityData.actionShot = req.file.path;
         }
 
         const activity = await Activity.create(activityData);
@@ -66,7 +66,7 @@ const updateActivity = async (req, res) => {
         if(req.body.category) activity.category = req.body.category;
 
         if (req.file) {
-            activity.actionShot = `/uploads/activities/${req.file.filename}`;
+            activity.actionShot = req.file.path;
         }
 
         const updatedActivity = await activity.save();

@@ -12,12 +12,12 @@ exports.createAttraction = async (req, res) => {
 
     if (req.files) {
       if (req.files.coverPhoto && req.files.coverPhoto.length > 0) {
-        attractionData.coverPhoto = `/uploads/attractions/${req.files.coverPhoto[0].filename}`;
+        attractionData.coverPhoto = req.files.coverPhoto[0].path;
       }
       
       if (req.files.additionalPhotos && req.files.additionalPhotos.length > 0) {
         attractionData.additionalPhotos = req.files.additionalPhotos.map(
-          (file) => `/uploads/attractions/${file.filename}`
+          (file) => file.path
         );
       }
     }
