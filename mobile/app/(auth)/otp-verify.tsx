@@ -28,11 +28,14 @@ export default function OTPVerifyScreen() {
         setLoading(true);
         try {
             await verifyEmail(email, otp.trim());
-            Alert.alert('Success', 'Your email has been verified!', [
-                { text: 'Continue', onPress: () => router.replace('/(tabs)/') }
-            ]);
+            // Navigate immediately — Alert callbacks don't fire on web
+            router.replace('/(tabs)/');
         } catch (error: any) {
-            Alert.alert('Verification Failed', error.response?.data?.message || 'Invalid or expired code.');
+            if (Platform.OS === 'web') {
+                window.alert(error.response?.data?.message || 'Invalid or expired code. Please try again.');
+            } else {
+                Alert.alert('Verification Failed', error.response?.data?.message || 'Invalid or expired code.');
+            }
         } finally {
             setLoading(false);
         }

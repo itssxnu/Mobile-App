@@ -30,13 +30,15 @@ export default function ResetPassword() {
 
         setLoading(true);
         try {
-            const res = await axios.put(`${API_URL}/auth/reset-password/${token.trim()}`, { password });
-            
-            Alert.alert('Success', 'Your password has been successfully reset!', [
-                { text: 'Back to Login', onPress: () => router.replace('/(auth)/login') }
-            ]);
+            await axios.put(`${API_URL}/auth/reset-password/${token.trim()}`, { password });
+            // Navigate immediately — Alert callbacks don't fire on web
+            router.replace('/(auth)/login');
         } catch (error: any) {
-            Alert.alert('Reset Failed', error.response?.data?.message || 'Something went wrong');
+            if (Platform.OS === 'web') {
+                window.alert(error.response?.data?.message || 'Something went wrong');
+            } else {
+                Alert.alert('Reset Failed', error.response?.data?.message || 'Something went wrong');
+            }
         } finally {
             setLoading(false);
         }

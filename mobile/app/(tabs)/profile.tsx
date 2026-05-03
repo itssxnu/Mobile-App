@@ -85,11 +85,14 @@ export default function ProfileScreen() {
       }
 
       await updateProfile(formData);
-      Alert.alert('Success', 'Profile updated successfully!', [
-        { text: 'OK', onPress: () => router.back() }
-      ]);
+      // Navigate immediately — Alert callbacks don't fire on web
+      router.back();
     } catch (err: any) {
-      Alert.alert('Update Failed', err.response?.data?.message || 'Something went wrong.');
+      if (Platform.OS === 'web') {
+        window.alert(err.response?.data?.message || 'Something went wrong.');
+      } else {
+        Alert.alert('Update Failed', err.response?.data?.message || 'Something went wrong.');
+      }
     } finally {
       setLoading(false);
     }

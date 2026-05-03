@@ -80,29 +80,35 @@ export default function RegisterScreen() {
     formData.append('password', password);
 
     if (profilePhoto) {
-      const filename = profilePhoto.split('/').pop() || 'photo.jpg';
-      const match = /\.(\w+)$/.exec(filename);
-      const type = match ? `image/${match[1]}` : `image/jpeg`;
-
-      formData.append('profilePhoto', {
-        uri: Platform.OS === 'android' ? profilePhoto : profilePhoto.replace('file://', ''),
-        name: filename,
-        type: type,
-      } as any);
+      if (Platform.OS === 'web') {
+        const response = await fetch(profilePhoto);
+        const blob = await response.blob();
+        formData.append('profilePhoto', blob, 'photo.jpg');
+      } else {
+        const filename = profilePhoto.split('/').pop() || 'photo.jpg';
+        const match = /\.(\w+)$/.exec(filename);
+        const type = match ? `image/${match[1]}` : `image/jpeg`;
+        formData.append('profilePhoto', {
+          uri: Platform.OS === 'android' ? profilePhoto : profilePhoto.replace('file://', ''),
+          name: filename,
+          type: type,
+        } as any);
+      }
     }
 
     try {
       const response = await registerUser(formData);
 
       if (response.unverified) {
-        Alert.alert(
-          'Verification Required',
-          'We have sent a 6-digit code to your email. Please verify your account.',
-          [{ text: 'OK', onPress: () => router.push({ pathname: '/(auth)/otp-verify', params: { email: email.trim().toLowerCase() } }) }]
-        );
+        // Navigate immediately — Alert callbacks don't fire on web
+        router.push({ pathname: '/(auth)/otp-verify', params: { email: email.trim().toLowerCase() } });
       }
     } catch (err: any) {
-      Alert.alert('Registration Failed', err.response?.data?.message || 'Server error.');
+      if (Platform.OS === 'web') {
+        window.alert(err.response?.data?.message || 'Registration failed. Please try again.');
+      } else {
+        Alert.alert('Registration Failed', err.response?.data?.message || 'Server error.');
+      }
     } finally {
       setLoading(false);
     }

@@ -18,16 +18,15 @@ export default function ForgotPassword() {
 
         setLoading(true);
         try {
-            const res = await axios.post(`${API_URL}/auth/forgot-password`, { email: email.trim().toLowerCase() });
-            
-            // Pop up the success message
-            Alert.alert(
-                'Email Sent', 
-                'If an account with that email exists, we have sent a recovery token to it. Please check your inbox and spam folders.',
-                [{ text: 'Enter Token', onPress: () => router.push('/(auth)/reset-password') }]
-            );
+            await axios.post(`${API_URL}/auth/forgot-password`, { email: email.trim().toLowerCase() });
+            // Navigate immediately — Alert callbacks don't fire on web
+            router.push('/(auth)/reset-password');
         } catch (error: any) {
-            Alert.alert('Recovery Failed', error.response?.data?.message || 'Something went wrong');
+            if (Platform.OS === 'web') {
+                window.alert(error.response?.data?.message || 'Something went wrong');
+            } else {
+                Alert.alert('Recovery Failed', error.response?.data?.message || 'Something went wrong');
+            }
         } finally {
             setLoading(false);
         }

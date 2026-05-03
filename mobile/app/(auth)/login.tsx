@@ -82,14 +82,15 @@ export default function LoginScreen() {
       router.replace('/(tabs)');
     } catch (err: any) {
       if (err.response?.data?.unverified) {
-        Alert.alert(
-          'Verification Required',
-          err.response?.data?.message || 'Please verify your email.',
-          [{ text: 'Enter Code', onPress: () => router.push({ pathname: '/(auth)/otp-verify', params: { email: email.trim().toLowerCase() } }) }]
-        );
+        // Navigate immediately — Alert callbacks don't fire on web
+        router.push({ pathname: '/(auth)/otp-verify', params: { email: email.trim().toLowerCase() } });
       } else {
         const msg = err.response?.data?.message ?? 'Login failed. Please try again.';
-        Alert.alert('Login Failed', msg);
+        if (Platform.OS === 'web') {
+          window.alert(msg);
+        } else {
+          Alert.alert('Login Failed', msg);
+        }
       }
     } finally {
       setLoading(false);
