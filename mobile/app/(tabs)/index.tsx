@@ -110,10 +110,10 @@ export default function DashboardScreen() {
                       setMenuVisible(false); 
                       const type = user?.providerType?.toUpperCase();
                       if (type === 'HOST') router.push('/(tabs)/host');
-                      else if (type === 'GUIDE') router.push('/(tabs)/guide');
+                      // else if (type === 'GUIDE') router.push('/(tabs)/guide');
                       else if (type === 'ACTIVITY') router.push('/(tabs)/activity');
-                      else if (type === 'EVENT') router.push('/(tabs)/event');
-                      else if (type === 'ATTRACTION') router.push('/(tabs)/attraction');
+                      // else if (type === 'EVENT') router.push('/(tabs)/event');
+                      else if (type === 'ATTRACTION') router.push('/(tabs)/attractions');
                   }}>
                     <View style={[styles.menuIconBox, { backgroundColor: '#eef4ed' }]}>
                       <Ionicons name="bar-chart-outline" size={22} color="#3a5a40" />
@@ -162,17 +162,17 @@ export default function DashboardScreen() {
 
           <TouchableOpacity 
             style={[styles.exploreBtn, { backgroundColor: '#588157', marginTop: 12 }]}
-            onPress={() => router.push('/(tabs)/attraction')}
+            onPress={() => router.push('/(tabs)/attractions')}
           >
             <Text style={styles.exploreBtnText}>Explore Attractions</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          {/* <TouchableOpacity 
             style={[styles.exploreBtn, { backgroundColor: '#3a5a40', marginTop: 12 }]}
             onPress={() => router.push('/(tabs)/guide')}
           >
             <Text style={styles.exploreBtnText}>Find Local Guides</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
           <TouchableOpacity 
             style={[styles.exploreBtn, { backgroundColor: '#2d6a4f', marginTop: 12 }]}
@@ -181,12 +181,12 @@ export default function DashboardScreen() {
             <Text style={styles.exploreBtnText}>Explore Homestays</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          {/* <TouchableOpacity 
             style={[styles.exploreBtn, { backgroundColor: '#1e40af', marginTop: 12 }]}
             onPress={() => router.push('/(tabs)/event')}
           >
             <Text style={styles.exploreBtnText}>Explore Events</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
 
         <TouchableOpacity 

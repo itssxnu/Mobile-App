@@ -30,7 +30,7 @@ const userSchema = new mongoose.Schema(
     },
     providerType: {
       type: String,
-      enum: ["HOST", "GUIDE", "ACTIVITY", "EVENT"],
+      enum: ["HOST", "GUIDE", "ACTIVITY", "EVENT", "ATTRACTION"],
       required: function() { return this.role === 'PROVIDER'; }
     },
     profilePhoto: {
