@@ -30,6 +30,7 @@ export default function AttractionDetail() {
   const [editDescription, setEditDescription] = useState("");
   const [editDifficulty, setEditDifficulty] = useState("");
   const [saving, setSaving] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const fetchData = async () => {
     try {
@@ -65,8 +66,9 @@ export default function AttractionDetail() {
   };
 
   const handleUpdate = async () => {
+    setErrorMessage("");
     if (!editDescription.trim() || !editDifficulty.trim()) {
-      Alert.alert("Required", "Please fill all required fields.");
+      setErrorMessage("Please fill all required fields.");
       return;
     }
 
@@ -79,8 +81,8 @@ export default function AttractionDetail() {
       setAttraction(updated.data);
       setIsEditing(false);
       Alert.alert("Success", "Attraction updated successfully!");
-    } catch (error) {
-      Alert.alert("Update Failed", error.response?.data?.message || "Could not update.");
+    } catch (error: any) {
+      setErrorMessage(error.response?.data?.message || "Could not update.");
     } finally {
       setSaving(false);
     }
@@ -166,6 +168,7 @@ export default function AttractionDetail() {
             )}
           </View>
 
+          {isEditing && errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
           <Text style={styles.sectionTitle}>About</Text>
           {isEditing ? (
             <TextInput
@@ -229,6 +232,7 @@ export default function AttractionDetail() {
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.cancelButton} onPress={() => {
                     setIsEditing(false);
+                    setErrorMessage("");
                     setEditDescription(attraction.description);
                     setEditDifficulty(attraction.difficultyLevel);
                   }}>
@@ -329,4 +333,5 @@ const styles = StyleSheet.create({
   saveButtonText: { color: "#ffffff", fontSize: 16, fontWeight: "700" },
   cancelButton: { padding: 16, alignItems: "center" },
   cancelButtonText: { color: "#588157", fontSize: 16, fontWeight: "700" },
+  errorText: { color: '#dc2626', fontSize: 14, marginBottom: 12, textAlign: 'center', backgroundColor: '#fee2e2', padding: 10, borderRadius: 8, overflow: 'hidden' },
 });

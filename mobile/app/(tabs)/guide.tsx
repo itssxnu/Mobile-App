@@ -35,6 +35,7 @@ export default function GuidesScreen() {
     const [phoneNumber, setPhoneNumber] = useState('');
     const [imageUri, setImageUri] = useState<string | null>(null);
     const [existingImage, setExistingImage] = useState<string | null>(null);
+    const [errorMessage, setErrorMessage] = useState('');
 
     const loadData = async () => {
         try {
@@ -72,24 +73,26 @@ export default function GuidesScreen() {
     };
 
     const handleSaveGuide = async () => {
+        setErrorMessage('');
+        
         if (!name.trim() || !languagesSpoken.trim() || !vehicleType.trim() || !dailyRate.trim() || !phoneNumber.trim()) {
-            Alert.alert('Error', 'Please fill out all required fields.');
+            setErrorMessage('Please fill out all required fields.');
             return;
         }
 
         const phoneRegex = /^\d{10}$/;
         if (!phoneRegex.test(phoneNumber.trim())) {
-            Alert.alert('Error', 'Phone number must be exactly 10 digits.');
+            setErrorMessage('Phone number must be exactly 10 digits.');
             return;
         }
 
         if (Number(dailyRate) < 0) {
-            Alert.alert('Error', 'Daily rate cannot be a negative value.');
+            setErrorMessage('Daily rate cannot be a negative value.');
             return;
         }
 
         if (!imageUri && !existingImage) {
-            Alert.alert('Error', 'Please upload a profile headshot.');
+            setErrorMessage('Please upload a profile headshot.');
             return;
         }
 
@@ -129,7 +132,7 @@ export default function GuidesScreen() {
             resetForm();
             loadData();
         } catch (error: any) {
-            Alert.alert('Error', error.response?.data?.message || 'Failed to save guide profile.');
+            setErrorMessage(error.response?.data?.message || 'Failed to save guide profile.');
         } finally {
             setFormLoading(false);
         }
@@ -200,6 +203,7 @@ export default function GuidesScreen() {
         setPhoneNumber('');
         setImageUri(null);
         setExistingImage(null);
+        setErrorMessage('');
     };
 
     const userRole = currentUser?.role?.toUpperCase();
@@ -309,6 +313,7 @@ export default function GuidesScreen() {
                         </View>
 
                         <ScrollView showsVerticalScrollIndicator={false}>
+                            {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
                             <View style={styles.imagePickerContainer}>
                                 <TouchableOpacity style={styles.imagePickerAvatar} onPress={pickImage}>
                                     {imageUri ? (
@@ -461,5 +466,6 @@ const styles = StyleSheet.create({
     input: { backgroundColor: '#f9f9f9', borderWidth: 1, borderColor: '#ddd', borderRadius: 10, padding: 12, fontSize: 15 },
     row: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 },
     submitButton: { backgroundColor: '#344e41', padding: 16, borderRadius: 12, alignItems: 'center', marginTop: 30, marginBottom: 20 },
-    submitButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' }
+    submitButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+    errorText: { color: '#dc2626', fontSize: 14, marginBottom: 12, textAlign: 'center', backgroundColor: '#fee2e2', padding: 10, borderRadius: 8, overflow: 'hidden' }
 });

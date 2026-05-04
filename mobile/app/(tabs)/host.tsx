@@ -36,6 +36,7 @@ export default function HomestaysScreen() {
     const [hostContact, setHostContact] = useState('');
     const [imageUri, setImageUri] = useState<string | null>(null);
     const [existingImage, setExistingImage] = useState<string | null>(null);
+    const [errorMessage, setErrorMessage] = useState('');
 
     const loadData = async () => {
         try {
@@ -73,18 +74,20 @@ export default function HomestaysScreen() {
     };
 
     const handleSaveHomestay = async () => {
+        setErrorMessage('');
+        
         if (!title.trim() || !description.trim() || !location.trim() || !pricePerNight.trim() || !amenities.trim() || !hostContact.trim()) {
-            Alert.alert('Error', 'Please fill out all required fields.');
+            setErrorMessage('Please fill out all required fields.');
             return;
         }
 
         if (Number(pricePerNight) < 0) {
-            Alert.alert('Error', 'Price cannot be a negative value.');
+            setErrorMessage('Price cannot be a negative value.');
             return;
         }
 
         if (!imageUri && !existingImage) {
-            Alert.alert('Error', 'Please upload a property cover photo.');
+            setErrorMessage('Please upload a property cover photo.');
             return;
         }
 
@@ -125,7 +128,7 @@ export default function HomestaysScreen() {
             resetForm();
             loadData();
         } catch (error: any) {
-            Alert.alert('Error', error.response?.data?.message || 'Failed to save property.');
+            setErrorMessage(error.response?.data?.message || 'Failed to save property.');
         } finally {
             setFormLoading(false);
         }
@@ -201,6 +204,7 @@ export default function HomestaysScreen() {
         setHostContact('');
         setImageUri(null);
         setExistingImage(null);
+        setErrorMessage('');
     };
 
     const userRole = currentUser?.role?.toUpperCase();
@@ -313,6 +317,7 @@ export default function HomestaysScreen() {
                         </View>
 
                         <ScrollView showsVerticalScrollIndicator={false}>
+                            {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
                             <Text style={styles.label}>Property Title</Text>
                             <TextInput style={styles.input} value={title} onChangeText={setTitle} placeholder="e.g. Sunny Villa by the Beach" />
 
@@ -471,5 +476,6 @@ const styles = StyleSheet.create({
     previewImage: { width: '100%', height: '100%' },
     
     submitButton: { backgroundColor: '#344e41', padding: 16, borderRadius: 12, alignItems: 'center', marginTop: 24, marginBottom: 20 },
-    submitButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' }
+    submitButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+    errorText: { color: '#dc2626', fontSize: 14, marginBottom: 12, textAlign: 'center', backgroundColor: '#fee2e2', padding: 10, borderRadius: 8, overflow: 'hidden' }
 });

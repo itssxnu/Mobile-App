@@ -35,6 +35,7 @@ export default function ActivitiesScreen() {
     const [category, setCategory] = useState('');
     const [imageUri, setImageUri] = useState<string | null>(null);
     const [existingImage, setExistingImage] = useState<string | null>(null);
+    const [errorMessage, setErrorMessage] = useState('');
 
     const loadData = async () => {
         try {
@@ -71,18 +72,20 @@ export default function ActivitiesScreen() {
     };
 
     const handleSaveActivity = async () => {
+        setErrorMessage('');
+        
         if (!title.trim() || !providerName.trim() || !duration.trim() || !pricePerPerson.trim() || !category.trim()) {
-            Alert.alert('Error', 'Please fill out all required fields.');
+            setErrorMessage('Please fill out all required fields.');
             return;
         }
 
         if (Number(duration) < 0 || Number(pricePerPerson) < 0) {
-            Alert.alert('Error', 'Duration and price cannot be negative values.');
+            setErrorMessage('Duration and price cannot be negative values.');
             return;
         }
 
         if (!imageUri && !existingImage) {
-            Alert.alert('Error', 'Please upload an action shot.');
+            setErrorMessage('Please upload an action shot.');
             return;
         }
 
@@ -122,7 +125,7 @@ export default function ActivitiesScreen() {
             resetForm();
             loadData();
         } catch (error: any) {
-            Alert.alert('Error', error.response?.data?.message || 'Failed to save activity.');
+            setErrorMessage(error.response?.data?.message || 'Failed to save activity.');
         } finally {
             setFormLoading(false);
         }
@@ -187,6 +190,7 @@ export default function ActivitiesScreen() {
         setCategory('');
         setImageUri(null);
         setExistingImage(null);
+        setErrorMessage('');
     };
 
     // Determine if user has rights to add an activity
@@ -292,6 +296,7 @@ export default function ActivitiesScreen() {
                         </View>
 
                         <ScrollView showsVerticalScrollIndicator={false}>
+                            {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
                             <Text style={styles.label}>Title</Text>
                             <TextInput style={styles.input} value={title} onChangeText={setTitle} placeholder="e.g. Scuba Diving" />
 
@@ -418,5 +423,6 @@ const styles = StyleSheet.create({
     imagePickerText: { color: '#888', fontSize: 14 },
     previewImage: { width: '100%', height: '100%' },
     submitButton: { backgroundColor: '#344e41', padding: 16, borderRadius: 12, alignItems: 'center', marginTop: 24, marginBottom: 20 },
-    submitButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' }
+    submitButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+    errorText: { color: '#dc2626', fontSize: 14, marginBottom: 12, textAlign: 'center', backgroundColor: '#fee2e2', padding: 10, borderRadius: 8, overflow: 'hidden' }
 });

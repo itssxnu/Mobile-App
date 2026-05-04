@@ -27,6 +27,7 @@ export default function SubmitAttraction() {
   const [coverPhoto, setCoverPhoto] = useState(null);
   const [additionalPhotos, setAdditionalPhotos] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const pickCoverPhoto = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -59,8 +60,9 @@ export default function SubmitAttraction() {
   };
 
   const handleSubmit = async () => {
+    setErrorMessage("");
     if (!name.trim() || !description.trim() || !district.trim() || !coverPhoto) {
-      Alert.alert("Required", "Please fill all required fields and upload a cover photo.");
+      setErrorMessage("Please fill all required fields and upload a cover photo.");
       return;
     }
 
@@ -103,11 +105,7 @@ export default function SubmitAttraction() {
       // Navigate immediately — Alert callbacks don't fire on web
       router.back();
     } catch (err: any) {
-      if (Platform.OS === "web") {
-        window.alert(err.response?.data?.message || "Something went wrong. Please try again.");
-      } else {
-        Alert.alert("Submission Failed", err.response?.data?.message || "Something went wrong.");
-      }
+      setErrorMessage(err.response?.data?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -125,6 +123,7 @@ export default function SubmitAttraction() {
 
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={styles.card}>
+          {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
           <Text style={styles.sectionTitle}>Basic Info</Text>
           
           <View style={styles.fieldWrapper}>
@@ -259,4 +258,5 @@ const styles = StyleSheet.create({
   addMorePhotoBtn: { width: 100, height: 100, borderRadius: 12, borderWidth: 2, borderColor: "#a3b18a", borderStyle: "dashed", justifyContent: "center", alignItems: "center", backgroundColor: "#f8f9fa" },
   primaryButton: { backgroundColor: "#3a5a40", borderRadius: 14, padding: 16, alignItems: "center" },
   primaryButtonText: { color: "#ffffff", fontSize: 16, fontWeight: "700" },
+  errorText: { color: '#dc2626', fontSize: 14, marginBottom: 12, textAlign: 'center', backgroundColor: '#fee2e2', padding: 10, borderRadius: 8, overflow: 'hidden' },
 });

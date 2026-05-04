@@ -34,6 +34,7 @@ export default function EventsScreen() {
     const [description, setDescription] = useState('');
     const [imageUri, setImageUri] = useState<string | null>(null);
     const [existingImage, setExistingImage] = useState<string | null>(null);
+    const [errorMessage, setErrorMessage] = useState('');
 
     const loadData = async () => {
         try {
@@ -71,25 +72,27 @@ export default function EventsScreen() {
     };
 
     const handleSaveEvent = async () => {
-        if (!eventName || !eventDate || !location || !description) {
-            Alert.alert('Error', 'Please fill out all required fields.');
+        setErrorMessage('');
+        
+        if (!eventName.trim() || !eventDate.trim() || !location.trim() || !description.trim()) {
+            setErrorMessage('Please fill out all required fields.');
             return;
         }
 
         const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-        if (!dateRegex.test(eventDate)) {
-            Alert.alert('Error', 'Please enter date in YYYY-MM-DD format.');
+        if (!dateRegex.test(eventDate.trim())) {
+            setErrorMessage('Please enter date in YYYY-MM-DD format.');
             return;
         }
 
         const todayString = new Date().toISOString().split('T')[0];
-        if (eventDate < todayString) {
-            Alert.alert('Error', 'Event date cannot be in the past.');
+        if (eventDate.trim() < todayString) {
+            setErrorMessage('Event date cannot be in the past.');
             return;
         }
 
         if (!imageUri && !existingImage) {
-            Alert.alert('Error', 'Please upload an event poster.');
+            setErrorMessage('Please upload an event poster.');
             return;
         }
 
@@ -128,7 +131,7 @@ export default function EventsScreen() {
             resetForm();
             loadData();
         } catch (error: any) {
-            Alert.alert('Error', error.response?.data?.message || 'Failed to save event. Ensure date format is YYYY-MM-DD.');
+            setErrorMessage(error.response?.data?.message || 'Failed to save event. Ensure date format is YYYY-MM-DD.');
         } finally {
             setFormLoading(false);
         }
@@ -199,6 +202,7 @@ export default function EventsScreen() {
         setDescription('');
         setImageUri(null);
         setExistingImage(null);
+        setErrorMessage('');
     };
 
     const userRole = currentUser?.role?.toUpperCase();
@@ -314,6 +318,7 @@ export default function EventsScreen() {
                         </View>
 
                         <ScrollView showsVerticalScrollIndicator={false}>
+                            {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
                             <Text style={styles.label}>Event Name</Text>
                             <TextInput style={styles.input} value={eventName} onChangeText={setEventName} placeholder="e.g. Kandy Perahera" />
 
@@ -451,5 +456,6 @@ const styles = StyleSheet.create({
     previewImage: { width: '100%', height: '100%' },
     
     submitButton: { backgroundColor: '#344e41', padding: 16, borderRadius: 12, alignItems: 'center', marginTop: 24, marginBottom: 20 },
-    submitButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' }
+    submitButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+    errorText: { color: '#dc2626', fontSize: 14, marginBottom: 12, textAlign: 'center', backgroundColor: '#fee2e2', padding: 10, borderRadius: 8, overflow: 'hidden' }
 });

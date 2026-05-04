@@ -29,6 +29,7 @@ export default function ReviewList({ targetId, targetType, isItemOwner = false }
     const [comment, setComment] = useState('');
     const [imageUri, setImageUri] = useState<string | null>(null);
     const [existingImage, setExistingImage] = useState<string | null>(null);
+    const [errorMessage, setErrorMessage] = useState('');
 
     const loadReviews = async () => {
         try {
@@ -66,9 +67,11 @@ export default function ReviewList({ targetId, targetType, isItemOwner = false }
     };
 
     const handleSaveReview = async () => {
+        setErrorMessage('');
+        
         const numRating = parseInt(rating);
         if (!comment.trim() || isNaN(numRating) || numRating < 1 || numRating > 5) {
-            Alert.alert('Error', 'Please provide a comment and a valid rating (1-5).');
+            setErrorMessage('Please provide a comment and a valid rating (1-5).');
             return;
         }
 
@@ -107,7 +110,7 @@ export default function ReviewList({ targetId, targetType, isItemOwner = false }
             resetForm();
             loadReviews();
         } catch (error: any) {
-            Alert.alert('Error', error.response?.data?.message || 'Failed to submit review. Make sure you are logged in.');
+            setErrorMessage(error.response?.data?.message || 'Failed to submit review. Make sure you are logged in.');
         } finally {
             setFormLoading(false);
         }
@@ -166,6 +169,7 @@ export default function ReviewList({ targetId, targetType, isItemOwner = false }
         setComment('');
         setImageUri(null);
         setExistingImage(null);
+        setErrorMessage('');
     };
 
     const renderStars = (ratingNum: number) => {
@@ -266,6 +270,8 @@ export default function ReviewList({ targetId, targetType, isItemOwner = false }
                             </TouchableOpacity>
                         </View>
 
+                        {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+
                         <Text style={styles.label}>Rating (1-5)</Text>
                         <View style={styles.ratingSelector}>
                             {[1,2,3,4,5].map(num => (
@@ -362,5 +368,6 @@ const styles = StyleSheet.create({
     previewImage: { width: '100%', height: '100%' },
 
     submitButton: { backgroundColor: '#344e41', padding: 16, borderRadius: 12, alignItems: 'center', marginTop: 24 },
-    submitButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' }
+    submitButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+    errorText: { color: '#dc2626', fontSize: 14, marginBottom: 12, textAlign: 'center', backgroundColor: '#fee2e2', padding: 10, borderRadius: 8, overflow: 'hidden' }
 });
