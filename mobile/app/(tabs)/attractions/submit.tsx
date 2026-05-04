@@ -66,6 +66,11 @@ export default function SubmitAttraction() {
       return;
     }
 
+    if (entryFee && Number(entryFee) < 0) {
+      setErrorMessage("Entry fee cannot be a negative value.");
+      return;
+    }
+
     setLoading(true);
     try {
       const formData = new FormData();
