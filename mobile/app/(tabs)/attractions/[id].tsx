@@ -65,6 +65,11 @@ export default function AttractionDetail() {
   };
 
   const handleUpdate = async () => {
+    if (!editDescription.trim() || !editDifficulty.trim()) {
+      Alert.alert("Required", "Please fill all required fields.");
+      return;
+    }
+
     try {
       setSaving(true);
       const updated = await updateAttraction(id, {

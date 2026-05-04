@@ -73,8 +73,18 @@ export default function HomestaysScreen() {
     };
 
     const handleSaveHomestay = async () => {
-        if (!title || !description || !location || !pricePerNight || !amenities || !hostContact) {
+        if (!title.trim() || !description.trim() || !location.trim() || !pricePerNight.trim() || !amenities.trim() || !hostContact.trim()) {
             Alert.alert('Error', 'Please fill out all required fields.');
+            return;
+        }
+
+        if (Number(pricePerNight) < 0) {
+            Alert.alert('Error', 'Price cannot be a negative value.');
+            return;
+        }
+
+        if (!imageUri && !existingImage) {
+            Alert.alert('Error', 'Please upload a property cover photo.');
             return;
         }
 

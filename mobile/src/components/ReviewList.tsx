@@ -67,7 +67,7 @@ export default function ReviewList({ targetId, targetType, isItemOwner = false }
 
     const handleSaveReview = async () => {
         const numRating = parseInt(rating);
-        if (!comment || isNaN(numRating) || numRating < 1 || numRating > 5) {
+        if (!comment.trim() || isNaN(numRating) || numRating < 1 || numRating > 5) {
             Alert.alert('Error', 'Please provide a comment and a valid rating (1-5).');
             return;
         }

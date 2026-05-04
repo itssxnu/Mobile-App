@@ -71,8 +71,18 @@ export default function ActivitiesScreen() {
     };
 
     const handleSaveActivity = async () => {
-        if (!title || !providerName || !duration || !pricePerPerson || !category) {
+        if (!title.trim() || !providerName.trim() || !duration.trim() || !pricePerPerson.trim() || !category.trim()) {
             Alert.alert('Error', 'Please fill out all required fields.');
+            return;
+        }
+
+        if (Number(duration) < 0 || Number(pricePerPerson) < 0) {
+            Alert.alert('Error', 'Duration and price cannot be negative values.');
+            return;
+        }
+
+        if (!imageUri && !existingImage) {
+            Alert.alert('Error', 'Please upload an action shot.');
             return;
         }
 

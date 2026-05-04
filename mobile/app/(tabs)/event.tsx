@@ -76,6 +76,23 @@ export default function EventsScreen() {
             return;
         }
 
+        const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+        if (!dateRegex.test(eventDate)) {
+            Alert.alert('Error', 'Please enter date in YYYY-MM-DD format.');
+            return;
+        }
+
+        const todayString = new Date().toISOString().split('T')[0];
+        if (eventDate < todayString) {
+            Alert.alert('Error', 'Event date cannot be in the past.');
+            return;
+        }
+
+        if (!imageUri && !existingImage) {
+            Alert.alert('Error', 'Please upload an event poster.');
+            return;
+        }
+
         setFormLoading(true);
         try {
             const formData = new FormData();

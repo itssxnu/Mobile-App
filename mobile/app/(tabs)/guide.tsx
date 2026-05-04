@@ -72,8 +72,24 @@ export default function GuidesScreen() {
     };
 
     const handleSaveGuide = async () => {
-        if (!name || !languagesSpoken || !vehicleType || !dailyRate || !phoneNumber) {
+        if (!name.trim() || !languagesSpoken.trim() || !vehicleType.trim() || !dailyRate.trim() || !phoneNumber.trim()) {
             Alert.alert('Error', 'Please fill out all required fields.');
+            return;
+        }
+
+        const phoneRegex = /^\d{10}$/;
+        if (!phoneRegex.test(phoneNumber.trim())) {
+            Alert.alert('Error', 'Phone number must be exactly 10 digits.');
+            return;
+        }
+
+        if (Number(dailyRate) < 0) {
+            Alert.alert('Error', 'Daily rate cannot be a negative value.');
+            return;
+        }
+
+        if (!imageUri && !existingImage) {
+            Alert.alert('Error', 'Please upload a profile headshot.');
             return;
         }
 
