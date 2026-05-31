@@ -32,7 +32,6 @@
 * [🚀 API Endpoint Matrix](#-api-endpoint-matrix)
 * [📦 Project Codebase Structure](#-project-codebase-structure)
 * [🛠️ Installation & Quick Start](#️-installation--quick-start)
-* [💡 Demo Bypasses & Testing Guide](#-demo-bypasses--testing-guide)
 
 ---
 
