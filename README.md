@@ -1,18 +1,18 @@
 <div align="center">
 
-# 🌴 HD Resorts (Sri Lanka Travel Companion)
+# 🌴 HD Resorts
+### *Sri Lanka's Premium Travel Discovery & Booking Companion*
 
-**A full-featured, cross-platform travel discovery and booking application with multi-role provider dashboards, seamless PWA support, and real-time community reviews.**
+**A feature-rich, high-fidelity MERN stack travel companion platform with cross-platform PWA support, multi-role client portals, secure OTP authentication, and dynamic media uploads.**
 
 ---
 
-![React Native](https://img.shields.io/badge/React_Native-0.74-61DAFB?style=flat-square&logo=react)
-![Expo](https://img.shields.io/badge/Expo-51.0-000020?style=flat-square&logo=expo)
-![Node.js](https://img.shields.io/badge/Node.js-20.x-339933?style=flat-square&logo=nodedotjs)
-![Express](https://img.shields.io/badge/Express.js-4.x-000000?style=flat-square&logo=express)
-![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?style=flat-square&logo=mongodb)
-![Cloudinary](https://img.shields.io/badge/Cloudinary-Media-3448C5?style=flat-square&logo=cloudinary)
-![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)
+[![React Native](https://img.shields.io/badge/React_Native-0.81-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactnative.dev)
+[![Expo](https://img.shields.io/badge/Expo-54.0-000020?style=for-the-badge&logo=expo&logoColor=white)](https://expo.dev)
+[![Node.js](https://img.shields.io/badge/Node.js-20.x-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org)
+[![Express](https://img.shields.io/badge/Express.js-5.x-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com)
+[![Cloudinary](https://img.shields.io/badge/Cloudinary-Media-3448C5?style=for-the-badge&logo=cloudinary&logoColor=white)](https://cloudinary.com)
 
 <!-- Live GitHub stats -->
 ![Last Commit](https://img.shields.io/github/last-commit/itssxnu/Mobile-App?style=flat-square&label=Last%20Commit)
@@ -24,193 +24,215 @@
 
 ---
 
-## Overview
-
-**HD Resorts** is a modular, production-ready travel platform built on the MERN stack using Expo and React Native Web. It goes beyond a simple travel catalogue — combining a seamless discovery experience for tourists, a dedicated self-service portal for local service providers, and a powerful admin back-office into a single cohesive system.
-
-### What makes it stand out
-
-| ✨ Feature | Details |
-|---|---|
-| 📱 Cross-Platform (PWA) | Write once, run anywhere. Fully optimized for Web, iOS, and Android via Expo. |
-| 🏡 Multi-Service Bookings | Unified platform for exploring Homestays, Guides, Activities, and Events. |
-| 🔐 Role-Based Auth | Secure JWT authentication with strict role authorization (User, Provider, Admin). |
-| 📧 Secure Recovery | Robust OTP-based registration and password recovery flows. |
-| 📸 Cloudinary Media | Fast, optimized, and secure image uploading and delivery for provider listings. |
-| 💬 Community Reviews | Integrated review and rating system across all services with visual attachments. |
-| 🗺️ Hidden Gems | Community-driven "Attractions" module to share and discover secret spots. |
-| 🎨 Modern Aesthetics | Premium, travel-inspired UI with dynamic layouts and horizontal carousels. |
+## 📖 Table of Contents
+* [🌴 Overview](#-overview)
+* [✨ Features & Capabilities](#-features--capabilities)
+* [🗺️ High-Level System Architecture](#️-high-level-system-architecture)
+* [🔐 Role-Based Access Control (RBAC)](#-role-based-access-control-rbac)
+* [🚀 API Endpoint Matrix](#-api-endpoint-matrix)
+* [📦 Project Codebase Structure](#-project-codebase-structure)
+* [🛠️ Installation & Quick Start](#️-installation--quick-start)
+* [💡 Demo Bypasses & Testing Guide](#-demo-bypasses--testing-guide)
 
 ---
 
-## Feature Matrix
+## 🌴 Overview
 
-<table>
-<thead>
-<tr><th>Role</th><th>Key Capabilities</th></tr>
-</thead>
-<tbody>
+**HD Resorts** is a production-ready, modular travel ecosystem crafted for the ultimate Sri Lankan exploration experience. It integrates a client-facing discovery feed for tourists, specialized business portals for regional service providers (Hosts, Guides, Event Coordinators, Activity Planners), and an administrative back-office system into a unified application.
 
-<tr>
-<td><strong>User / Explorer</strong></td>
-<td>Browse curated travel feeds, search for homestays and events, submit community reviews with photos, post hidden "Attractions", and easily upgrade their account to become a provider.</td>
-</tr>
-
-<tr>
-<td><strong>Provider</strong></td>
-<td>Access specialized dashboards (Host, Guide, Event, Activity) to CRUD listings, upload media, manage pricing, and respond to incoming bookings and community reviews.</td>
-</tr>
-
-<tr>
-<td><strong>Admin</strong></td>
-<td>Manage all users across the platform, moderate community content, delete inappropriate reviews/listings, and oversee overall platform activity.</td>
-</tr>
-
-</tbody>
-</table>
+Using **React Native Web**, the client application compiled via **Expo** delivers a high-fidelity native application experience on Android & iOS while doubling as a highly responsive PWA (Progressive Web App) for desktop browsers.
 
 ---
 
-## Architecture
+## ✨ Features & Capabilities
+
+* **📱 Multi-Platform PWA**: Runs natively on iOS and Android while offering a polished web layout.
+* **🔑 Dynamic Role-Based Auth**: Fully customizable JWT authorization with automatic router level guards.
+* **📸 Cloud-Hosted Media**: Automatic multipart form handling using Multer, storing listings and profile images securely in Cloudinary.
+* **💬 Community Engagement**: Integrated listing reviews, rating engines, and visual feedback uploads.
+* **🏝️ Hidden Spots Discovery**: User-contributed community map points and attractions modules to discover pristine, secret Sri Lankan gems.
+* **⚙️ Developer Demo Mode**: Built-in OTP and SMTP bypass mechanisms to allow instant evaluation on server hosting free-tiers.
+
+---
+
+## 🗺️ High-Level System Architecture
+
+```mermaid
+flowchart TB
+    subgraph Client ["Universal Frontend (Expo PWA / Mobile)"]
+        UI["React Native PWA & App"]
+        Router["Expo Router (Guard Layer)"]
+        Axios["Axios Clients (Services)"]
+        AsyncStorage["AsyncStorage (Session Keeper)"]
+        
+        UI --> Router
+        Router --> Axios
+        Axios --> AsyncStorage
+    end
+
+    subgraph Server ["Backend REST API (Node/Express)"]
+        Express["Express.js Server"]
+        AuthM["JWT & Role Verification Middleware"]
+        UploadM["Multer Cloudinary File Pipelines"]
+        Controllers["Core API Controllers"]
+        
+        Express --> AuthM
+        Express --> UploadM
+        AuthM --> Controllers
+        UploadM --> Controllers
+    end
+
+    subgraph Data ["Persistence & External Services"]
+        MongoDB[("MongoDB Atlas")]
+        Cloudinary["Cloudinary API"]
+        SMTP["Nodemailer (SMTP Server)"]
+        
+        Controllers --> MongoDB
+        Controllers --> Cloudinary
+        Controllers --> SMTP
+    end
+
+    Axios <== "HTTP REST API / JSON" ==> Express
+```
+
+---
+
+## 🔐 Role-Based Access Control (RBAC)
+
+The application segments features and views using a granular role structure:
+
+| User Role | View Privileges | Mutate / CRUD Capabilities |
+|---|---|---|
+| **Explorer** | Feeds, Attractions, Active Listings, Community Reviews | Submit reviews with images, post hidden "Attractions", request upgrade to Provider |
+| **Provider** | Personalized dashboards corresponding to provider subtype | Full CRUD on listings (Homestays, Guiding Services, Events, Activities) and incoming bookings |
+| **Admin** | Global platform oversight dashboard, user matrix | Complete control to moderate listings, remove inappropriate comments/reviews, alter user roles |
+
+---
+
+## 🚀 API Endpoint Matrix
+
+All backend routes are prefixed with `/api` and return standardized JSON packages.
+
+### 🔐 Authentication (`/api/auth`)
+| Method | Endpoint | Authorization | Description |
+|:---:|---|:---:|---|
+| **POST** | `/register` | Public | Register user account with optional `profilePhoto` upload |
+| **POST** | `/login` | Public | Authenticate credentials and return JWT & user details |
+| **POST** | `/verify-email` | Public | Submit dynamic OTP token to verify email address |
+| **POST** | `/resend-verification`| Public | Request email validation code dispatch |
+| **POST** | `/forgot-password` | Public | Start password recovery pipeline |
+| **PUT** | `/reset-password/:token`| Public | Complete password reset using active token |
+| **POST** | `/google` | Public | Authenticate via Google OAuth credentials |
+
+### 👤 Profile & User Operations (`/api/users`)
+| Method | Endpoint | Authorization | Description |
+|:---:|---|:---:|---|
+| **GET** | `/me` | JWT | Get current user's profile information |
+| **PUT** | `/me` | JWT | Edit profile settings & custom photo |
+| **DELETE**| `/me/photo` | JWT | Remove custom profile image |
+| **DELETE**| `/me` | JWT | Deactivate and delete current account |
+| **PUT** | `/upgrade` | JWT | Request upgrade to a **PROVIDER** role |
+| **GET** | `/` | Admin | Get list of all registered platform users |
+| **PUT** | `/:id/role` | Admin | Update target user's role settings |
+| **DELETE**| `/:id` | Admin | Remove target user account |
+
+### 🏡 Homestays & Travel Services (`/api/homestays`)
+| Method | Endpoint | Authorization | Description |
+|:---:|---|:---:|---|
+| **GET** | `/` | Public | Query list of all active homestay listings |
+| **POST** | `/` | Provider / Admin | Create a new homestay listing |
+| **GET** | `/:id` | Public | Get information for a specific homestay |
+| **PUT** | `/:id` | Provider / Admin | Edit details/image for a homestay |
+| **DELETE**| `/:id` | Provider / Admin | Remove homestay listing |
+
+### 💬 Review & Feedback Engine (`/api/reviews`)
+| Method | Endpoint | Authorization | Description |
+|:---:|---|:---:|---|
+| **POST** | `/` | JWT | Write a review on an item with a `reviewPhoto` |
+| **GET** | `/:targetId` | Public | Read reviews matching a specified listing ID |
+| **PUT** | `/:id` | JWT | Edit your own review and attachment |
+| **DELETE**| `/:id` | JWT | Delete a review (Admins can delete any review) |
+
+---
+
+## 📦 Project Codebase Structure
+
+The project maintains a decoupled modular design separating backend APIs from frontend clients:
 
 ```
 project-root/
-├── backend/
+├── backend/                      # REST API Server
 │   ├── src/
-│   │   ├── config/              # MongoDB connection, Cloudinary config
-│   │   ├── controllers/         # 8 HTTP controllers (auth, homestay, event, etc.)
-│   │   ├── middleware/          # JWT auth, Role authorization, Multer uploads
-│   │   ├── models/              # Mongoose schemas (User, Event, Activity, etc.)
-│   │   ├── routes/              # Express API routing
-│   │   ├── utils/               # Nodemailer SMTP setup, Helpers
-│   │   └── server.js            # Express application entry point
-│   ├── seedEvents.js            # Database seeder utility
-│   ├── .env                     # Backend secrets
-│   └── package.json
-└── mobile/
-    ├── app/                     # Expo Router (File-based routing)
-    │   ├── (auth)/              # Login, Register, Forgot Password flows
-    │   ├── (tabs)/              # Main App screens, Dashboards, Discovery feeds
-    │   └── _layout.tsx          # Global navigation stack
+│   │   ├── config/              # MongoDB connection & Cloudinary setup
+│   │   ├── controllers/         # Logic controllers (auth, homestay, events, etc.)
+│   │   ├── middleware/          # Security filters, JWT decoders, uploads
+│   │   ├── models/              # Mongoose database schema models
+│   │   ├── routes/              # Express endpoint router wires
+│   │   ├── utils/               # SMTP wrappers and helper utilities
+│   │   └── server.js            # Express application entrypoint
+│   ├── seedEvents.js            # Mock data seeder
+│   └── package.json             # Server package configuration
+│
+└── mobile/                       # Cross-Platform Client
+    ├── app/                     # File-based view routers (Expo Router)
+    │   ├── (auth)/              # Register, Sign-In, and password recovery views
+    │   ├── (tabs)/              # Active Explorer home, provider panels, & settings
+    │   └── _layout.tsx          # Nav stack wrapper
     ├── src/
-    │   ├── components/          # Reusable UI (ReviewList, Modals, Forms)
-    │   ├── config/              # API Base URLs
-    │   └── services/            # Axios API call wrappers (authService, reviewService)
-    ├── app.json                 # Expo configuration
-    └── package.json
-```
-
-### Layer Breakdown
-
-| Layer | Packages/Folders | Responsibility |
-|---|---|---|
-| **Security** | `middleware`, `authService` | JWT signing/verification, OTP flow, Route guards |
-| **Routing** | `routes`, `app/(tabs)` | Express endpoints (Backend) & Expo file-based routing (Frontend) |
-| **Service** | `controllers`, `services` | Business logic, API communication, email dispatch |
-| **Persistence**| `models` | Mongoose Schemas — MongoDB data modeling |
-| **Storage** | `multer`, `Cloudinary` | Handling multipart/form-data and remote image hosting |
-| **View** | `app/`, `components/` | React Native UI components, Stylesheets |
-
----
-
-## Domain Model (Key Entities)
-
-```
-User ──< Homestay ──< Review
- │           │
- ├──< Guide  ├──< Attraction
- ├──< Event  ├──< Activity
- └──< Token (OTP)
+    │   ├── components/          # Reusable visual views (e.g. ReviewList)
+    │   ├── config/              # Dynamic local/remote host endpoints
+    │   └── services/            # Client Axios APIs
+    ├── app.json                 # Expo settings config
+    └── package.json             # Mobile application packages
 ```
 
 ---
 
-## Technology Stack
+## 🛠️ Installation & Quick Start
 
-| Concern | Technology |
-|---|---|
-| Frontend | React Native, Expo, Expo Router |
-| Backend | Node.js, Express.js |
-| Persistence | MongoDB (Mongoose ODM) |
-| File Storage | Cloudinary |
-| Security | JWT (JSON Web Tokens), Bcryptjs |
-| Email | Nodemailer (SMTP) |
-| HTTP Client | Axios |
-| Styling | React Native StyleSheet |
+### 📋 Prerequisites
+- **Node.js** (v18.x or v20.x recommended)
+- **MongoDB** instance (Local or cloud-hosted Atlas database)
+- **Expo Go** application installed on your Android/iOS device (optional, to preview native builds)
 
----
+### 1️⃣ Server Setup
+1. Open your terminal, navigate to the backend directory, and install dependencies:
+   ```bash
+   cd backend
+   npm install
+   ```
+2. Create an environment configuration file named `.env` in the `backend/` directory:
+   ```env
+   PORT=5000
+   MONGO_URI=your_mongodb_atlas_uri
+   JWT_SECRET=your_jwt_signing_key
+   JWT_EXPIRE=30d
+   
+   # Cloudinary Keys (For uploads)
+   CLOUDINARY_CLOUD_NAME=your_cloudinary_name
+   CLOUDINARY_API_KEY=your_cloudinary_key
+   CLOUDINARY_API_SECRET=your_cloudinary_secret
+   ```
+3. Boot up the backend development server:
+   ```bash
+   npm run dev
+   ```
 
-## Configuration
+### 2️⃣ Client Setup
+1. Navigate to the mobile workspace directory and install client packages:
+   ```bash
+   cd ../mobile
+   npm install
+   ```
+2. Launch the Expo bundler:
+   ```bash
+   npx expo start
+   ```
+3. Press `w` in your terminal to view the application inside your local desktop browser, or scan the generated terminal QR code with your phone to load it inside the **Expo Go** app.
 
-All secrets are supplied via **environment variables** — no credentials are committed to the repository.
-
-### Backend (`backend/.env`)
-
-| Variable | Purpose |
-|---|---|
-| `PORT` | API server port (e.g., `5000`) |
-| `MONGO_URI` | MongoDB connection string |
-| `JWT_SECRET` | Secret key for signing JWTs |
-| `JWT_EXPIRE` | Token expiration time (e.g., `30d`) |
-| `SMTP_HOST` | SMTP host (e.g. `smtp.gmail.com`) |
-| `SMTP_PORT` | SMTP port (e.g. `587`) |
-| `SMTP_EMAIL` | Sender email address |
-| `SMTP_PASSWORD` | SMTP app password |
-| `CLOUDINARY_CLOUD_NAME` | Cloudinary account name |
-| `CLOUDINARY_API_KEY` | Cloudinary API key |
-| `CLOUDINARY_API_SECRET`| Cloudinary API secret |
-
-### Frontend (`mobile/src/config/apiConfig.ts`)
-
-Update the `API_BASE_URL` to point to your running backend (e.g., `http://localhost:5000` or your Render deployment URL).
-
----
-
-## Quick Start
-
-### Prerequisites
-
-- **Node.js** (v18+)
-- **npm** or **yarn**
-- **MongoDB** instance (Local or Atlas)
-- **Expo Go** app (optional, for physical device testing)
-
-### 1 — Clone
-
-```bash
-git clone https://github.com/itssxnu/Mobile-App.git
-cd Mobile-App
-```
-
-### 2 — Setup Backend
-
-```bash
-cd backend
-npm install
-```
-*Create a `.env` file in the `backend` directory using the configuration table above.*
-
-```bash
-# Start the backend server
-npm run dev
-```
-
-### 3 — Setup Frontend
-
-```bash
-cd ../mobile
-npm install
-```
-
-```bash
-# Start the Expo development server
-npx expo start
-```
-
-Press `w` in the terminal to open the Web App (PWA), or scan the QR code with the Expo Go app to view on a physical device.
 
 ---
 
 <div align="center">
-  <sub>Built with the MERN Stack, Expo, and a passion for travel discovery.</sub>
+  <sub>Designed with love for travel exploration in beautiful Sri Lanka. 🇱🇰</sub>
 </div>
